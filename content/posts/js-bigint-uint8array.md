@@ -1,5 +1,4 @@
 +++ 
-draft = true
 date = 2020-07-23T01:05:39+01:00
 title = "BigInt to Uint8Array"
 description = "How to convert BigInt to Uint8Array in javascript"
