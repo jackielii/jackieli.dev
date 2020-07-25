@@ -13,7 +13,7 @@ Go & Javascript seems to be doing the same thing on BigInt: toBytes returns the 
 
 ### javascript
 
-```
+```sh
 $ node
 > BigInt(-257).toString(16)
 '-101'
@@ -26,7 +26,7 @@ It's basically the sign plus the hex of the absolute value
 
 ### Go
 
-```
+```go
 package main
 
 import (
@@ -44,7 +44,7 @@ func main() {
 
 From `big.Int.Bytes()` [documentation](https://pkg.go.dev/math/big?tab=doc#Int.Bytes): 
 
-```
+```txt
 Bytes returns the absolute value of x as a big-endian byte slice.
 ```
 
@@ -59,5 +59,11 @@ println(Arrays.toString(BigDecimal("-257").unscaledValue().toByteArray()))
 
 The doc says:
 
-Returns a byte array containing the two's-complement representation of this BigInteger. The byte array will be in big-endian byte-order: the most significant byte is in the zeroth element. The array will contain the minimum number of bytes required to represent this BigInteger, including at least one sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is compatible with the (byte[]) constructor.)
-
+```txt
+Returns a byte array containing the two's-complement representation of this
+BigInteger. The byte array will be in big-endian byte-order: the most
+significant byte is in the zeroth element. The array will contain the minimum
+number of bytes required to represent this BigInteger, including at least one
+sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is
+compatible with the (byte[]) constructor.)
+```
