@@ -17,7 +17,8 @@ One-minute read</span></div><div class=tags><i class="fa fa-tag" aria-hidden=tru
 <span class=tag><a href=https://www.jackieli.dev/tags/typescript/>typescript</a></span></div></div></header><div><p>Go & Javascript seems to be doing the same thing on BigInt: toBytes returns the
 absolute value with the sign seperately. While Java returns the <a href=https://en.wikipedia.org/wiki/Two%27s_complement>Two&rsquo;s
 complement</a> representation.
-It makes it just a bit trickier to get the right binary representation.</p><h3 id=javascript>javascript
+It makes it just a bit trickier to get the right binary representation.</p><p><a href=https://www.jackieli.dev/posts/bigint-to-uint8array/>This post</a> explores ways to
+implement the Two&rsquo;s complement representation in javascript & Go</p><h3 id=javascript>javascript
 <a class=heading-link href=#javascript><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ node
 &gt; BigInt(-257).toString(16)
 <span style=color:#666;font-style:italic>&#39;-101&#39;</span>
@@ -50,8 +51,7 @@ significant byte is in the zeroth element. The array will contain the minimum
 number of bytes required to represent this BigInteger, including at least one
 sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is
 compatible with the (byte[]) constructor.)
-</code></pre></div><p><a href=https://www.jackieli.dev/posts/bigint-to-uint8array/>This post</a> explores ways to
-implement the Two&rsquo;s complement representation in javascript & Go</p><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
+</code></pre></div><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2021
 Jackie Li
