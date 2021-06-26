@@ -50,6 +50,9 @@
     <span style=font-weight:700;font-style:italic>let</span> hex = big.toString(16)
     <span style=font-weight:700>if</span> (hex.length % 2) {
       hex = <span style=color:#666;font-style:italic>&#39;0&#39;</span> + hex
+    } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (hex[0] === <span style=color:#666;font-style:italic>&#39;8&#39;</span>) {
+      <span style=color:#888;font-style:italic>// maximum positive need to prepend 0 otherwise resuts in negative number
+</span><span style=color:#888;font-style:italic></span>      hex = <span style=color:#666;font-style:italic>&#39;00&#39;</span> + hex
     }
     <span style=font-weight:700>const</span> len = hex.length / 2
     <span style=font-weight:700>const</span> u8 = <span style=font-weight:700>new</span> Uint8Array(len)
@@ -63,7 +66,8 @@
     <span style=font-weight:700>return</span> u8
   }
 
-  numToUint8Array(): Uint8Array {
+  <span style=color:#888;font-style:italic>// positive save integer to array
+</span><span style=color:#888;font-style:italic></span>  numToUint8Array(): Uint8Array {
     <span style=font-weight:700;font-style:italic>let</span> n = <span style=font-weight:700>this</span>.num!!
     <span style=font-weight:700>const</span> arr: <span style=font-weight:700>number</span>[] = []
     <span style=font-weight:700>while</span> (<span style=font-weight:700>true</span>) {
@@ -76,15 +80,18 @@
     <span style=font-weight:700>if</span> (arr.length === 0) {
       <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array([0])
     }
-    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array(arr)
+    <span style=font-weight:700>if</span> (arr[0] &amp; 0x80) {
+      arr.unshift(0)
+    }
+    <span style=color:#888;font-style:italic>// TODO: we could eliminate leading 1&#39;s e.g. 0xff80 == 0x80
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array(arr)
   }
 
   unscaledBytes(): Uint8Array {
     <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.isNumber) {
       <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.num!! &lt; 0) {
         <span style=font-weight:700>this</span>.big = BigInt(<span style=font-weight:700>this</span>.num)
-        <span style=color:#888;font-style:italic>// TODO: use big for more concise representation, it eliminates negative padding
-</span><span style=color:#888;font-style:italic></span>      } <span style=font-weight:700>else</span> {
+      } <span style=font-weight:700>else</span> {
         <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.numToUint8Array()
       }
     }
@@ -96,23 +103,57 @@
   }
 
   toString() {
-    <span style=font-weight:700;font-style:italic>let</span> s: <span style=font-weight:700>string</span>
+    <span style=color:#888;font-style:italic>// TODO: should try to improve this
+</span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// one idea is to put negative to the class. if we do this, we should
+</span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// improve the bigInt parsing as well as parsing positive is easier than
+</span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// parsing 2s compliment integer
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700;font-style:italic>let</span> s: <span style=font-weight:700>string</span>
     <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.isNumber) {
       s = <span style=font-weight:700>this</span>.num!!.toString()
     } <span style=font-weight:700>else</span> {
       s = <span style=font-weight:700>this</span>.big!!.toString()
     }
-    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.scale == 0) {
+    <span style=font-weight:700>if</span> (!<span style=font-weight:700>this</span>.scale) {
       <span style=font-weight:700>return</span> s
     }
+    <span style=font-weight:700>const</span> negative = s.charAt(0) === <span style=color:#666;font-style:italic>&#39;-&#39;</span>
+    <span style=font-weight:700>if</span> (negative) {
+      s = s.slice(1)
+    }
     <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.scale &gt; s.length) {
-      <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>`scale </span><span style=color:#666;font-style:italic>${</span><span style=font-weight:700>this</span>.scale<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic> shouldn&#39;t be bigger than length: </span><span style=color:#666;font-style:italic>${</span>s.length<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic>`</span>)
+      s = s.padStart(<span style=font-weight:700>this</span>.scale, <span style=color:#666;font-style:italic>&#39;0&#39;</span>)
     }
-    <span style=font-weight:700>const</span> dot = s.length - <span style=font-weight:700>this</span>.scale
+    <span style=font-weight:700;font-style:italic>let</span> dot = s.length - <span style=font-weight:700>this</span>.scale
     <span style=font-weight:700>if</span> (dot === 0) {
-      <span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#39;0.&#39;</span>.concat(s)
+      s = <span style=color:#666;font-style:italic>&#39;0&#39;</span>.concat(s)
+      dot = 1
     }
-    <span style=font-weight:700>return</span> s.slice(0, dot).concat(<span style=color:#666;font-style:italic>&#39;.&#39;</span>).concat(s.slice(dot))
+    s = s.slice(0, dot).concat(<span style=color:#666;font-style:italic>&#39;.&#39;</span>).concat(s.slice(dot))
+    <span style=font-weight:700>if</span> (negative) {
+      <span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#39;-&#39;</span>.concat(s)
+    }
+    <span style=font-weight:700>return</span> s
+  }
+
+  toJSON() {
+    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.toString()
+  }
+
+  equals(other: <span style=font-weight:700>unknown</span>) {
+    <span style=font-weight:700>const</span> n = <span style=font-weight:700>this</span>.isNumber ? <span style=font-weight:700>this</span>.num : <span style=font-weight:700>this.big</span>
+    <span style=font-weight:700>if</span> (other <span style=font-weight:700>instanceof</span> BigDecimal) {
+      <span style=font-weight:700>const</span> m = other.isNumber ? other.num : <span style=font-weight:700>other.big</span>
+      <span style=color:#888;font-style:italic>// eslint-disable-next-line eqeqeq
+</span><span style=color:#888;font-style:italic></span>      <span style=font-weight:700>return</span> m == n
+    }
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=color:#666;font-style:italic>&#39;number&#39;</span>) {
+      <span style=color:#888;font-style:italic>// eslint-disable-next-line eqeqeq
+</span><span style=color:#888;font-style:italic></span>      <span style=font-weight:700>return</span> n == other
+    }
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=color:#666;font-style:italic>&#39;string&#39;</span>) {
+      <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.toString() === other
+    }
+    <span style=font-weight:700>return</span> <span style=font-weight:700>false</span>
   }
 
   <span style=font-weight:700>static</span> fromBytes(a: <span style=font-weight:700>Uint8Array</span>, scale?: <span style=font-weight:700>number</span>): BigDecimal {
@@ -138,12 +179,12 @@
       s = s.slice(0, s.length - 1)
     }
     <span style=color:#888;font-style:italic>// .-1234
-</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot == 0 &amp;&amp; minus == 1) {
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 0 &amp;&amp; minus === 1) {
       <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>&#39;invalid big decimal number&#39;</span>.concat(s))
     }
     s = s.slice(0, dot).concat(s.slice(dot + 1))
     <span style=color:#888;font-style:italic>// -.1234 = -0.1234
-</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot == 1 &amp;&amp; minus == 0) {
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 1 &amp;&amp; minus === 0) {
       <span style=color:#888;font-style:italic>// TODO
 </span><span style=color:#888;font-style:italic></span>    }
     <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(BigInt(s), s.length - dot)
