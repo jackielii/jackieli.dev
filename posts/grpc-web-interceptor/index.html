@@ -7,80 +7,80 @@
 <a href=https://www.jackieli.dev/categories/grpc-web/>gRPC-Web</a></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
 <span class=tag><a href=https://www.jackieli.dev/tags/javascript/>javascript</a></span>
 <span class=separator>•</span>
-<span class=tag><a href=https://www.jackieli.dev/tags/typescript/>typescript</a></span></div></div></header><div><p>This was supposed to be 5 minute job, or at least it looked like it after I skimmed through the <a href=https://grpc.io/blog/grpc-web-interceptor/>documentation</a></p><p>This was my first attempt:</p><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#fff;font-weight:700>class</span> AuthInterceptor&lt;<span style=font-weight:700>REQ</span> <span style=color:#007f7f>extends</span> <span style=color:#007f7f>Request</span><span style=color:red>,</span> <span style=color:#007f7f>RESP </span>= <span style=color:#007f7f>any</span>&gt; {
-  Intercept = <span style=color:#fff;font-weight:700>class</span> {
-    <span style=color:#fff;font-weight:700>private</span> stream: <span style=color:#fff;font-weight:700>grpcWeb.ClientReadableStream</span>&lt;<span style=font-weight:700>RESP</span>&gt;;
+<span class=tag><a href=https://www.jackieli.dev/tags/typescript/>typescript</a></span></div></div></header><div><p>This was supposed to be 5 minute job, or at least it looked like it after I skimmed through the <a href=https://grpc.io/blog/grpc-web-interceptor/>documentation</a></p><p>This was my first attempt:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=font-weight:700>class</span> AuthInterceptor&lt;REQ extends Request<span>,</span> RESP = any&gt; {
+  Intercept = <span style=font-weight:700>class</span> {
+    <span style=font-weight:700>private</span> stream: <span style=font-weight:700>grpcWeb.ClientReadableStream</span>&lt;RESP&gt;;
 
-    <span style=color:#fff;font-weight:700>constructor</span>(stream: <span style=color:#fff;font-weight:700>grpcWeb.ClientReadableStream</span>&lt;<span style=font-weight:700>RESP</span>&gt;) {
-      <span style=color:#fff;font-weight:700>this</span>.stream = stream;
+    <span style=font-weight:700>constructor</span>(stream: <span style=font-weight:700>grpcWeb.ClientReadableStream</span>&lt;RESP&gt;) {
+      <span style=font-weight:700>this</span>.stream = stream;
     }
 
-    on&lt;<span style=font-weight:700>F</span> <span style=color:#007f7f>extends</span> <span style=color:#007f7f>Function</span>&gt;(eventType: <span style=color:#fff;font-weight:700>EventType</span>, callback: <span style=color:#fff;font-weight:700>F</span>) {
-      <span style=color:#fff;font-weight:700>if</span> (eventType === <span style=color:#0ff;font-weight:700>&#34;error&#34;</span>) {
-        <span style=color:#fff;font-weight:700>this</span>.stream.on(<span style=color:#0ff;font-weight:700>&#34;error&#34;</span>, (err: <span style=color:#fff;font-weight:700>grpcWeb.Error</span>) =&gt; {
-          <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#34;development&#34;</span>) {
-            console.log(<span style=color:#0ff;font-weight:700>&#34;grpc web on error&#34;</span>, err);
+    on&lt;F extends Function&gt;(eventType: <span style=font-weight:700>EventType</span>, callback: <span style=font-weight:700>F</span>) {
+      <span style=font-weight:700>if</span> (eventType === <span style=color:#666;font-style:italic>&#34;error&#34;</span>) {
+        <span style=font-weight:700>this</span>.stream.on(<span style=color:#666;font-style:italic>&#34;error&#34;</span>, (err: <span style=font-weight:700>grpcWeb.Error</span>) =&gt; {
+          <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#34;development&#34;</span>) {
+            console.log(<span style=color:#666;font-style:italic>&#34;grpc web on error&#34;</span>, err);
           }
-          <span style=color:#fff;font-weight:700>if</span> (err.code === grpcWeb.StatusCode.UNAUTHENTICATED) {
+          <span style=font-weight:700>if</span> (err.code === grpcWeb.StatusCode.UNAUTHENTICATED) {
             OauthHelper.redirectToSSO();
           }
           callback(err);
         });
-      } <span style=color:#fff;font-weight:700>else</span> <span style=color:#fff;font-weight:700>if</span> (eventType === <span style=color:#0ff;font-weight:700>&#34;data&#34;</span>) {
-        <span style=color:#fff;font-weight:700>this</span>.stream.on(<span style=color:#0ff;font-weight:700>&#34;data&#34;</span>, (resp) =&gt; {
-          <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#34;development&#34;</span>) {
-            console.log(<span style=color:#0ff;font-weight:700>&#34;grpc web response&#34;</span>, (resp <span style=color:#fff;font-weight:700>as</span> <span style=color:#fff;font-weight:700>any</span>)?.toObject());
+      } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (eventType === <span style=color:#666;font-style:italic>&#34;data&#34;</span>) {
+        <span style=font-weight:700>this</span>.stream.on(<span style=color:#666;font-style:italic>&#34;data&#34;</span>, (resp) =&gt; {
+          <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#34;development&#34;</span>) {
+            console.log(<span style=color:#666;font-style:italic>&#34;grpc web response&#34;</span>, (resp <span style=font-weight:700>as</span> <span style=font-weight:700>any</span>)?.toObject());
           }
           callback(resp);
         });
-      } <span style=color:#fff;font-weight:700>else</span> <span style=color:#fff;font-weight:700>if</span> (eventType === <span style=color:#0ff;font-weight:700>&#34;status&#34;</span>) {
-        <span style=color:#fff;font-weight:700>this</span>.stream.on(<span style=color:#0ff;font-weight:700>&#34;status&#34;</span>, (status) =&gt; {
-          <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#34;development&#34;</span>) {
-            console.log(<span style=color:#0ff;font-weight:700>&#34;grpc web status&#34;</span>, status);
+      } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (eventType === <span style=color:#666;font-style:italic>&#34;status&#34;</span>) {
+        <span style=font-weight:700>this</span>.stream.on(<span style=color:#666;font-style:italic>&#34;status&#34;</span>, (status) =&gt; {
+          <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#34;development&#34;</span>) {
+            console.log(<span style=color:#666;font-style:italic>&#34;grpc web status&#34;</span>, status);
           }
           callback(status);
         });
-      } <span style=color:#fff;font-weight:700>else</span> <span style=color:#fff;font-weight:700>if</span> (eventType === <span style=color:#0ff;font-weight:700>&#34;end&#34;</span>) {
-        <span style=color:#fff;font-weight:700>this</span>.stream.on(<span style=color:#0ff;font-weight:700>&#34;end&#34;</span>, callback <span style=color:#fff;font-weight:700>as</span> <span style=color:#fff;font-weight:700>any</span>);
+      } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (eventType === <span style=color:#666;font-style:italic>&#34;end&#34;</span>) {
+        <span style=font-weight:700>this</span>.stream.on(<span style=color:#666;font-style:italic>&#34;end&#34;</span>, callback <span style=font-weight:700>as</span> <span style=font-weight:700>any</span>);
       }
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>this</span>;
+      <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>;
     }
 
     cancel() {
-      <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#34;development&#34;</span>) {
-        console.log(<span style=color:#0ff;font-weight:700>&#34;grpc web cancelled&#34;</span>);
+      <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#34;development&#34;</span>) {
+        console.log(<span style=color:#666;font-style:italic>&#34;grpc web cancelled&#34;</span>);
       }
-      <span style=color:#fff;font-weight:700>this</span>.stream.cancel();
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>this</span>;
+      <span style=font-weight:700>this</span>.stream.cancel();
+      <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>;
     }
   };
 
   intercept(
-    request: <span style=color:#fff;font-weight:700>REQ</span>,
+    request: <span style=font-weight:700>REQ</span>,
     invoker: (
-      request: <span style=color:#fff;font-weight:700>REQ</span>,
-      metadata?: <span style=color:#fff;font-weight:700>grpcWeb.Metadata</span>
-    ) =&gt; grpcWeb.ClientReadableStream&lt;<span style=font-weight:700>RESP</span>&gt;
+      request: <span style=font-weight:700>REQ</span>,
+      metadata?: <span style=font-weight:700>grpcWeb.Metadata</span>
+    ) =&gt; grpcWeb.ClientReadableStream&lt;RESP&gt;
   ) {
-    <span style=color:#fff;font-weight:700>const</span> md = request.getMetadata();
-    md[<span style=color:#0ff;font-weight:700>&#34;Authorization&#34;</span>] = <span style=color:#0ff;font-weight:700>`Bearer </span><span style=color:#0ff;font-weight:700>${</span>getAuthToken()<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>`</span>;
-    <span style=color:#007f7f>// cancellation
-</span><span style=color:#007f7f></span>    <span style=color:#fff;font-weight:700>const</span> signal = md.signal;
-    <span style=color:#fff;font-weight:700>delete</span> md.signal;
-    <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#34;development&#34;</span>) {
+    <span style=font-weight:700>const</span> md = request.getMetadata();
+    md[<span style=color:#666;font-style:italic>&#34;Authorization&#34;</span>] = <span style=color:#666;font-style:italic>`Bearer </span><span style=color:#666;font-style:italic>${</span>getAuthToken()<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic>`</span>;
+    <span style=color:#888;font-style:italic>// cancellation
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>const</span> signal = md.signal;
+    <span style=font-weight:700>delete</span> md.signal;
+    <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#34;development&#34;</span>) {
       console.log(
-        <span style=color:#0ff;font-weight:700>&#34;grpc-web request:&#34;</span>,
+        <span style=color:#666;font-style:italic>&#34;grpc-web request:&#34;</span>,
         request.getRequestMessage()?.toObject(),
-        <span style=color:#0ff;font-weight:700>&#34;metadata:&#34;</span>,
+        <span style=color:#666;font-style:italic>&#34;metadata:&#34;</span>,
         md
       );
     }
-    <span style=color:#fff;font-weight:700>const</span> stream = invoker(request);
-    <span style=color:#fff;font-weight:700>const</span> newStream = <span style=color:#fff;font-weight:700>new</span> <span style=color:#fff;font-weight:700>this</span>.Intercept(stream);
-    <span style=color:#fff;font-weight:700>if</span> (signal) {
-      signal.addEventListener(<span style=color:#0ff;font-weight:700>&#34;abort&#34;</span>, () =&gt; newStream.cancel());
+    <span style=font-weight:700>const</span> stream = invoker(request);
+    <span style=font-weight:700>const</span> newStream = <span style=font-weight:700>new</span> <span style=font-weight:700>this</span>.Intercept(stream);
+    <span style=font-weight:700>if</span> (signal) {
+      signal.addEventListener(<span style=color:#666;font-style:italic>&#34;abort&#34;</span>, () =&gt; newStream.cancel());
     }
-    <span style=color:#fff;font-weight:700>return</span> newStream;
+    <span style=font-weight:700>return</span> newStream;
   }
 }
 </code></pre></div><p>So pretty straight forward: I intercept request to add Authorization header &
@@ -94,50 +94,50 @@ open a incognito window to see it - just something people do - and it just
 doesn&rsquo;t work! The interceptor just didn&rsquo;t run at all: auth header is not added,
 signal property is not removed before sending to request.</p><p>What&rsquo;s worse is somehow the production build works in normal browser window!</p><p>You can imagine at this stage I&rsquo;m starting to question life, and it was 2am&mldr;</p><p>After wasting my time trying to debug and trace down the issue in the grpcWeb &
 generated libraries, I found part of the problem: I was using a Promise client
-and it needs a UnaryInterceptor, like so:</p><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=color:#fff;font-weight:700>class</span> UnaryAuthInterceptor&lt;<span style=font-weight:700>REQ</span> <span style=color:#007f7f>extends</span> <span style=color:#007f7f>Request</span><span style=color:red>,</span> <span style=color:#007f7f>RESP</span> <span style=color:#007f7f>extends</span> <span style=color:#007f7f>UnaryResponse</span>&gt; {
-  <span style=color:#fff;font-weight:700>async</span> intercept(request: <span style=color:#fff;font-weight:700>REQ</span>, invoker: (request: <span style=color:#fff;font-weight:700>REQ</span>) =&gt; Promise&lt;<span style=font-weight:700>RESP</span>&gt;) {
-    <span style=color:#fff;font-weight:700>const</span> md = request.getMetadata()
-    md[<span style=color:#0ff;font-weight:700>&#39;Authorization&#39;</span>] = <span style=color:#0ff;font-weight:700>`Bearer </span><span style=color:#0ff;font-weight:700>${</span>getAuthToken()<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>`</span>
-    <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#39;development&#39;</span>) {
-      console.log(<span style=color:#0ff;font-weight:700>&#39;grpc-web request:&#39;</span>, request.getRequestMessage()?.toObject(), <span style=color:#0ff;font-weight:700>&#39;metadata:&#39;</span>, md)
+and it needs a UnaryInterceptor, like so:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=font-weight:700>class</span> UnaryAuthInterceptor&lt;REQ extends Request<span>,</span> RESP extends UnaryResponse&gt; {
+  <span style=font-weight:700>async</span> intercept(request: <span style=font-weight:700>REQ</span>, invoker: (request: <span style=font-weight:700>REQ</span>) =&gt; Promise&lt;RESP&gt;) {
+    <span style=font-weight:700>const</span> md = request.getMetadata()
+    md[<span style=color:#666;font-style:italic>&#39;Authorization&#39;</span>] = <span style=color:#666;font-style:italic>`Bearer </span><span style=color:#666;font-style:italic>${</span>getAuthToken()<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic>`</span>
+    <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#39;development&#39;</span>) {
+      console.log(<span style=color:#666;font-style:italic>&#39;grpc-web request:&#39;</span>, request.getRequestMessage()?.toObject(), <span style=color:#666;font-style:italic>&#39;metadata:&#39;</span>, md)
     }
-    <span style=color:#007f7f>// cancellation
-</span><span style=color:#007f7f></span>    <span style=color:#007f7f>// const signal = md.signal // UnaryCall doesn&#39;t allow cancellation
-</span><span style=color:#007f7f></span>    <span style=color:#fff;font-weight:700>delete</span> md.signal
-    <span style=color:#fff;font-weight:700>try</span> {
-      <span style=color:#fff;font-weight:700>const</span> resp = <span style=color:#fff;font-weight:700>await</span> invoker(request)
-      <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#39;development&#39;</span>) {
-        console.log(<span style=color:#0ff;font-weight:700>&#39;grpc-web unary response:&#39;</span>, resp.getResponseMessage())
+    <span style=color:#888;font-style:italic>// cancellation
+</span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// const signal = md.signal // UnaryCall doesn&#39;t allow cancellation
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>delete</span> md.signal
+    <span style=font-weight:700>try</span> {
+      <span style=font-weight:700>const</span> resp = <span style=font-weight:700>await</span> invoker(request)
+      <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#39;development&#39;</span>) {
+        console.log(<span style=color:#666;font-style:italic>&#39;grpc-web unary response:&#39;</span>, resp.getResponseMessage())
       }
-      <span style=color:#fff;font-weight:700>return</span> resp
-    } <span style=color:#fff;font-weight:700>catch</span> (e) {
-      <span style=color:#fff;font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#0ff;font-weight:700>&#39;development&#39;</span>) {
-        console.log(<span style=color:#0ff;font-weight:700>&#39;grpc-web unary error&#39;</span>, e)
+      <span style=font-weight:700>return</span> resp
+    } <span style=font-weight:700>catch</span> (e) {
+      <span style=font-weight:700>if</span> (process.env.NODE_ENV === <span style=color:#666;font-style:italic>&#39;development&#39;</span>) {
+        console.log(<span style=color:#666;font-style:italic>&#39;grpc-web unary error&#39;</span>, e)
       }
-      <span style=color:#fff;font-weight:700>throw</span> e
+      <span style=font-weight:700>throw</span> e
     }
   }
 }
-</code></pre></div><p>Basically the same thing but needs a Promise and no cancellation.</p><p>This actually worked, but still it doesn&rsquo;t explain why it worked in normal browser window & not incognito mode. But at least at this stage, I&rsquo;m able to have a reliable interceptor, albeit less functionality</p><p>Should I call it good enough? Probably. But it really bothered me it works in normal browser window but not the incognito mode.</p><p>I did make some progress through: I can reproduce it even in dev build in incognito mode. So the only difference between these two is &mldr; the plugins!</p><p>I have gRPC-Web devtools plugin installed. Surely it shouldn&rsquo;t be the problem? Turned it off and I can reproduce the problem even in normal browser mode.</p><p>Finally: so somehow with gRPC-Web devtools, a Promise client will be turned into a RPC client that works with ClientReadableStream which is what StreamInterceptor works with.</p><p>By using gRPC-Web devtools, it gave me a false positive that shield the problem that I was using the wrong Interceptor.</p><p>So what did I learn? <strong>Read the documentation closely</strong></p><p>And since it was 3am already. I just made my own PromiseClient from the RPC Client, this way I get the cancellation as well:</p><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#fff;font-weight:700>const</span> createPromiseClient = &lt;<span style=font-weight:700>PromiseClient</span><span style=color:red>,</span> <span style=color:#007f7f>RpcClient </span>= <span style=color:#007f7f>unknown</span>&gt;(
-  client: <span style=color:#fff;font-weight:700>RpcClient</span>,
+</code></pre></div><p>Basically the same thing but needs a Promise and no cancellation.</p><p>This actually worked, but still it doesn&rsquo;t explain why it worked in normal browser window & not incognito mode. But at least at this stage, I&rsquo;m able to have a reliable interceptor, albeit less functionality</p><p>Should I call it good enough? Probably. But it really bothered me it works in normal browser window but not the incognito mode.</p><p>I did make some progress through: I can reproduce it even in dev build in incognito mode. So the only difference between these two is &mldr; the plugins!</p><p>I have gRPC-Web devtools plugin installed. Surely it shouldn&rsquo;t be the problem? Turned it off and I can reproduce the problem even in normal browser mode.</p><p>Finally: so somehow with gRPC-Web devtools, a Promise client will be turned into a RPC client that works with ClientReadableStream which is what StreamInterceptor works with.</p><p>By using gRPC-Web devtools, it gave me a false positive that shield the problem that I was using the wrong Interceptor.</p><p>So what did I learn? <strong>Read the documentation closely</strong></p><p>And since it was 3am already. I just made my own PromiseClient from the RPC Client, this way I get the cancellation as well:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=font-weight:700>const</span> createPromiseClient = &lt;PromiseClient<span>,</span> RpcClient = unknown&gt;(
+  client: <span style=font-weight:700>RpcClient</span>,
 ): PromiseClient =&gt; {
-  <span style=color:#fff;font-weight:700>const</span> methods = <span style=color:#fff;font-weight:700>Object</span>.getPrototypeOf(client)
-  <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>Object</span>.keys(methods).reduce((acc, method) =&gt; {
-    <span style=color:#fff;font-weight:700>const</span> rpc = methods[method].bind(client)
-    acc[method] = (request: <span style=color:#fff;font-weight:700>any</span>, metadata?: <span style=color:#fff;font-weight:700>grpcWeb.Metadata</span>) =&gt;
-      <span style=color:#fff;font-weight:700>new</span> Promise((resolve, reject) =&gt; {
-        rpc(request, metadata, (err: <span style=color:#fff;font-weight:700>grpcWeb.Error</span>, resp: <span style=color:#fff;font-weight:700>any</span>) =&gt; {
-          <span style=color:#fff;font-weight:700>if</span> (err) {
+  <span style=font-weight:700>const</span> methods = <span style=font-weight:700;font-style:italic>Object</span>.getPrototypeOf(client)
+  <span style=font-weight:700>return</span> <span style=font-weight:700;font-style:italic>Object</span>.keys(methods).reduce((acc, method) =&gt; {
+    <span style=font-weight:700>const</span> rpc = methods[method].bind(client)
+    acc[method] = (request: <span style=font-weight:700>any</span>, metadata?: <span style=font-weight:700>grpcWeb.Metadata</span>) =&gt;
+      <span style=font-weight:700>new</span> Promise((resolve, reject) =&gt; {
+        rpc(request, metadata, (err: <span style=font-weight:700>grpcWeb.Error</span>, resp: <span style=font-weight:700>any</span>) =&gt; {
+          <span style=font-weight:700>if</span> (err) {
             reject(err)
-            <span style=color:#fff;font-weight:700>return</span>
+            <span style=font-weight:700>return</span>
           }
           resolve(resp)
         })
       })
-    <span style=color:#fff;font-weight:700>return</span> acc
-  }, {} <span style=color:#fff;font-weight:700>as</span> <span style=color:#fff;font-weight:700>any</span>)
+    <span style=font-weight:700>return</span> acc
+  }, {} <span style=font-weight:700>as</span> <span style=font-weight:700>any</span>)
 }
-</code></pre></div><p>Comments: <a href=https://www.reddit.com/r/grpc/comments/i1qobj/grpcweb_interceptor/>reddit</a></p></div><footer></footer></article></section></div><footer class=footer><section class=container>©
+</code></pre></div><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2021
 Jackie Li

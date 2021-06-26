@@ -15,39 +15,39 @@ One-minute read</span></div><div class=tags><i class="fa fa-tag" aria-hidden=tru
 <span class=tag><a href=https://www.jackieli.dev/tags/javascript/>javascript</a></span>
 <span class=separator>•</span>
 <span class=tag><a href=https://www.jackieli.dev/tags/typescript/>typescript</a></span></div></div></header><div><p>Go & Javascript seems to be doing the same thing on BigInt: toBytes returns the absolute value of bytes. While Java returns the two&rsquo;s complement representation</p><h3 id=javascript>javascript
-<a class=heading-link href=#javascript><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ node
+<a class=heading-link href=#javascript><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ node
 &gt; BigInt(-257).toString(16)
-<span style=color:#0ff;font-weight:700>&#39;-101&#39;</span>
+<span style=color:#666;font-style:italic>&#39;-101&#39;</span>
 &gt; BigInt(257).toString(16)
-<span style=color:#0ff;font-weight:700>&#39;101&#39;</span>
+<span style=color:#666;font-style:italic>&#39;101&#39;</span>
 &gt;
 </code></pre></div><p>It&rsquo;s basically the sign plus the hex of the absolute value</p><h3 id=go>Go
-<a class=heading-link href=#go><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#fff;font-weight:700>package</span> main
+<a class=heading-link href=#go><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700>package</span> main
 
-<span style=color:#fff;font-weight:700>import</span> (
-	<span style=color:#0ff;font-weight:700>&#34;fmt&#34;</span>
-	<span style=color:#0ff;font-weight:700>&#34;math/big&#34;</span>
+<span style=font-weight:700>import</span> (
+	<span style=color:#666;font-style:italic>&#34;fmt&#34;</span>
+	<span style=color:#666;font-style:italic>&#34;math/big&#34;</span>
 )
 
-<span style=color:#fff;font-weight:700>func</span> main() {
-	fmt.Printf(<span style=color:#0ff;font-weight:700>&#34;%#v&#34;</span>, big.NewInt(-<span style=color:#ff0;font-weight:700>257</span>).Bytes())
+<span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>main</span>() {
+	fmt.<span style=color:#666;font-weight:700;font-style:italic>Printf</span>(<span style=color:#666;font-style:italic>&#34;%#v&#34;</span>, big.<span style=color:#666;font-weight:700;font-style:italic>NewInt</span>(-257).<span style=color:#666;font-weight:700;font-style:italic>Bytes</span>())
 }
 
-<span style=color:#007f7f>// output
-</span><span style=color:#007f7f>// []byte{0x1, 0x1}
-</span></code></pre></div><p>From <code>big.Int.Bytes()</code> <a href="https://pkg.go.dev/math/big?tab=doc#Int.Bytes">documentation</a>:</p><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-txt data-lang=txt>Bytes returns the absolute value of x as a big-endian byte slice.
+<span style=color:#888;font-style:italic>// output
+</span><span style=color:#888;font-style:italic>// []byte{0x1, 0x1}
+</span></code></pre></div><p>From <code>big.Int.Bytes()</code> <a href="https://pkg.go.dev/math/big?tab=doc#Int.Bytes">documentation</a>:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-txt data-lang=txt>Bytes returns the absolute value of x as a big-endian byte slice.
 </code></pre></div><h3 id=java--kotlin>java / kotlin
-<a class=heading-link href=#java--kotlin><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin>println(Arrays.toString(BigDecimal(<span style=color:#0ff;font-weight:700>&#34;-257&#34;</span>).unscaledValue().toByteArray()))
+<a class=heading-link href=#java--kotlin><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-kotlin data-lang=kotlin>println(Arrays.toString(BigDecimal(<span style=color:#666;font-style:italic>&#34;-257&#34;</span>).unscaledValue().toByteArray()))
 
-<span style=color:#007f7f>// output
-</span><span style=color:#007f7f>// [-2, -1]
-</span></code></pre></div><p>The doc says:</p><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-txt data-lang=txt>Returns a byte array containing the two&#39;s-complement representation of this
+<span style=color:#888;font-style:italic>// output
+</span><span style=color:#888;font-style:italic>// [-2, -1]
+</span></code></pre></div><p>The doc says:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-txt data-lang=txt>Returns a byte array containing the two&#39;s-complement representation of this
 BigInteger. The byte array will be in big-endian byte-order: the most
 significant byte is in the zeroth element. The array will contain the minimum
 number of bytes required to represent this BigInteger, including at least one
 sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is
 compatible with the (byte[]) constructor.)
-</code></pre></div><p>Comments: <a href=https://www.reddit.com/r/javascript/comments/i1qpco/bigint_to_bytes_in_javascript_java_go/>reddit</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
+</code></pre></div><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2021
 Jackie Li

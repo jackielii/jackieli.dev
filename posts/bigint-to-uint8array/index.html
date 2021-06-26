@@ -14,180 +14,180 @@
 <span class=tag><a href=https://www.jackieli.dev/tags/bigint/>bigint</a></span>
 <span class=separator>•</span>
 <span class=tag><a href=https://www.jackieli.dev/tags/uint8array/>uint8array</a></span></div></div></header><div><p>The problem came when I wanted to pass down BigDecimal&rsquo;s unscaledBytes from kotlin/java to javascript through gRPC-Web.</p><p>Java&rsquo;s implementation of the unscaledBytes returns signed big-endian bytes</p><p>Javascript has BigInt support, but lacks of <code>toBytes()</code>, stuff around the internet all seems to handle positive numbers just fine, but fails in negative number implementation</p><p>I borrowed from a Go implementation and adapted to javascript</p><h2 id=javascript-implementation-using-typescript>Javascript implementation (using Typescript)
-<a class=heading-link href=#javascript-implementation-using-typescript><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=color:#fff;font-weight:700>const</span> TWO_POWER_31 = <span style=color:#ff0;font-weight:700>2147483648</span>
+<a class=heading-link href=#javascript-implementation-using-typescript><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-typescript data-lang=typescript><span style=font-weight:700>const</span> TWO_POWER_31 = 2147483648
 
-<span style=color:#fff;font-weight:700>const</span> big0 = BigInt(<span style=color:#ff0;font-weight:700>0</span>)
-<span style=color:#fff;font-weight:700>const</span> big1 = BigInt(<span style=color:#ff0;font-weight:700>1</span>)
-<span style=color:#fff;font-weight:700>const</span> big8 = BigInt(<span style=color:#ff0;font-weight:700>8</span>)
+<span style=font-weight:700>const</span> big0 = BigInt(0)
+<span style=font-weight:700>const</span> big1 = BigInt(1)
+<span style=font-weight:700>const</span> big8 = BigInt(8)
 
-<span style=color:#fff;font-weight:700>export</span> <span style=color:#fff;font-weight:700>class</span> BigDecimal {
-  <span style=color:#fff;font-weight:700>private</span> big?: <span style=color:#fff;font-weight:700>bigint</span>
-  <span style=color:#fff;font-weight:700>private</span> num?: <span style=color:#fff;font-weight:700>number</span>
-  <span style=color:#fff;font-weight:700>private</span> isNumber: <span style=color:#fff;font-weight:700>boolean</span>
-  scale: <span style=color:#fff;font-weight:700>number</span>
+<span style=font-weight:700>export</span> <span style=font-weight:700>class</span> BigDecimal {
+  <span style=font-weight:700>private</span> big?: <span style=font-weight:700>bigint</span>
+  <span style=font-weight:700>private</span> num?: <span style=font-weight:700>number</span>
+  <span style=font-weight:700>private</span> isNumber: <span style=font-weight:700>boolean</span>
+  scale: <span style=font-weight:700>number</span>
 
-  <span style=color:#fff;font-weight:700>constructor</span>(int: <span style=color:#fff;font-weight:700>bigint</span> | <span style=color:#fff;font-weight:700>number</span>, scale?: <span style=color:#fff;font-weight:700>number</span>) {
-    <span style=color:#fff;font-weight:700>this</span>.isNumber = int &lt; TWO_POWER_31 &amp;&amp; int &gt;= -TWO_POWER_31
-    <span style=color:#fff;font-weight:700>if</span> (!<span style=color:#fff;font-weight:700>this</span>.isNumber) {
-      <span style=color:#fff;font-weight:700>this</span>.big = BigInt(int)
-    } <span style=color:#fff;font-weight:700>else</span> {
-      <span style=color:#fff;font-weight:700>const</span> n = <span style=color:#fff;font-weight:700>Number</span>(int)
-      <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>Math</span>.floor(n) !== n) {
-        <span style=color:#fff;font-weight:700>throw</span> <span style=color:#fff;font-weight:700>new</span> <span style=color:#fff;font-weight:700>Error</span>(<span style=color:#0ff;font-weight:700>&#39;big decimal only accepts integer and scale&#39;</span>)
+  <span style=font-weight:700>constructor</span>(int: <span style=font-weight:700>bigint</span> | <span style=font-weight:700>number</span>, scale?: <span style=font-weight:700>number</span>) {
+    <span style=font-weight:700>this</span>.isNumber = int &lt; TWO_POWER_31 &amp;&amp; int &gt;= -TWO_POWER_31
+    <span style=font-weight:700>if</span> (!<span style=font-weight:700>this</span>.isNumber) {
+      <span style=font-weight:700>this</span>.big = BigInt(int)
+    } <span style=font-weight:700>else</span> {
+      <span style=font-weight:700>const</span> n = <span style=font-weight:700;font-style:italic>Number</span>(int)
+      <span style=font-weight:700>if</span> (<span style=font-weight:700;font-style:italic>Math</span>.floor(n) !== n) {
+        <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>&#39;big decimal only accepts integer and scale&#39;</span>)
       }
-      <span style=color:#fff;font-weight:700>this</span>.num = n
+      <span style=font-weight:700>this</span>.num = n
     }
-    <span style=color:#fff;font-weight:700>this</span>.scale = scale || <span style=color:#ff0;font-weight:700>0</span>
+    <span style=font-weight:700>this</span>.scale = scale || 0
   }
 
   bigToUint8Array() {
-    <span style=color:#fff;font-weight:700>let</span> big: <span style=color:#fff;font-weight:700>bigint</span> = <span style=color:#fff;font-weight:700>this</span>.big!!
-    <span style=color:#fff;font-weight:700>if</span> (big &lt; big0) {
-      <span style=color:#fff;font-weight:700>const</span> bits: <span style=color:#fff;font-weight:700>bigint</span> = (BigInt(big.toString(<span style=color:#ff0;font-weight:700>2</span>).length) / big8 + big1) * big8
-      <span style=color:#fff;font-weight:700>const</span> prefix1: <span style=color:#fff;font-weight:700>bigint</span> = big1 &lt;&lt; bits
+    <span style=font-weight:700;font-style:italic>let</span> big: <span style=font-weight:700>bigint</span> = <span style=font-weight:700>this</span>.big!!
+    <span style=font-weight:700>if</span> (big &lt; big0) {
+      <span style=font-weight:700>const</span> bits: <span style=font-weight:700>bigint</span> = (BigInt(big.toString(2).length) / big8 + big1) * big8
+      <span style=font-weight:700>const</span> prefix1: <span style=font-weight:700>bigint</span> = big1 &lt;&lt; bits
       big += prefix1
     }
-    <span style=color:#fff;font-weight:700>let</span> hex = big.toString(<span style=color:#ff0;font-weight:700>16</span>)
-    <span style=color:#fff;font-weight:700>if</span> (hex.length % <span style=color:#ff0;font-weight:700>2</span>) {
-      hex = <span style=color:#0ff;font-weight:700>&#39;0&#39;</span> + hex
+    <span style=font-weight:700;font-style:italic>let</span> hex = big.toString(16)
+    <span style=font-weight:700>if</span> (hex.length % 2) {
+      hex = <span style=color:#666;font-style:italic>&#39;0&#39;</span> + hex
     }
-    <span style=color:#fff;font-weight:700>const</span> len = hex.length / <span style=color:#ff0;font-weight:700>2</span>
-    <span style=color:#fff;font-weight:700>const</span> u8 = <span style=color:#fff;font-weight:700>new</span> Uint8Array(len)
-    <span style=color:#fff;font-weight:700>var</span> i = <span style=color:#ff0;font-weight:700>0</span>
-    <span style=color:#fff;font-weight:700>var</span> j = <span style=color:#ff0;font-weight:700>0</span>
-    <span style=color:#fff;font-weight:700>while</span> (i &lt; len) {
-      u8[i] = <span style=color:#fff;font-weight:700>parseInt</span>(hex.slice(j, j + <span style=color:#ff0;font-weight:700>2</span>), <span style=color:#ff0;font-weight:700>16</span>)
-      i += <span style=color:#ff0;font-weight:700>1</span>
-      j += <span style=color:#ff0;font-weight:700>2</span>
+    <span style=font-weight:700>const</span> len = hex.length / 2
+    <span style=font-weight:700>const</span> u8 = <span style=font-weight:700>new</span> Uint8Array(len)
+    <span style=font-weight:700;font-style:italic>var</span> i = 0
+    <span style=font-weight:700;font-style:italic>var</span> j = 0
+    <span style=font-weight:700>while</span> (i &lt; len) {
+      u8[i] = <span style=font-weight:700;font-style:italic>parseInt</span>(hex.slice(j, j + 2), 16)
+      i += 1
+      j += 2
     }
-    <span style=color:#fff;font-weight:700>return</span> u8
+    <span style=font-weight:700>return</span> u8
   }
 
   numToUint8Array(): Uint8Array {
-    <span style=color:#fff;font-weight:700>let</span> n = <span style=color:#fff;font-weight:700>this</span>.num!!
-    <span style=color:#fff;font-weight:700>const</span> arr: <span style=color:#fff;font-weight:700>number</span>[] = []
-    <span style=color:#fff;font-weight:700>while</span> (<span style=color:#fff;font-weight:700>true</span>) {
-      <span style=color:#fff;font-weight:700>if</span> (!n) {
-        <span style=color:#fff;font-weight:700>break</span>
+    <span style=font-weight:700;font-style:italic>let</span> n = <span style=font-weight:700>this</span>.num!!
+    <span style=font-weight:700>const</span> arr: <span style=font-weight:700>number</span>[] = []
+    <span style=font-weight:700>while</span> (<span style=font-weight:700>true</span>) {
+      <span style=font-weight:700>if</span> (!n) {
+        <span style=font-weight:700>break</span>
       }
-      arr.unshift(n &amp; <span style=color:#ff0;font-weight:700>0xff</span>)
-      n &gt;&gt;&gt;= <span style=color:#ff0;font-weight:700>8</span>
+      arr.unshift(n &amp; 0xff)
+      n &gt;&gt;&gt;= 8
     }
-    <span style=color:#fff;font-weight:700>if</span> (arr.length === <span style=color:#ff0;font-weight:700>0</span>) {
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> Uint8Array([<span style=color:#ff0;font-weight:700>0</span>])
+    <span style=font-weight:700>if</span> (arr.length === 0) {
+      <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array([0])
     }
-    <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> Uint8Array(arr)
+    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array(arr)
   }
 
   unscaledBytes(): Uint8Array {
-    <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>this</span>.isNumber) {
-      <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>this</span>.num!! &lt; <span style=color:#ff0;font-weight:700>0</span>) {
-        <span style=color:#fff;font-weight:700>this</span>.big = BigInt(<span style=color:#fff;font-weight:700>this</span>.num)
-        <span style=color:#007f7f>// TODO: use big for more concise representation, it eliminates negative padding
-</span><span style=color:#007f7f></span>      } <span style=color:#fff;font-weight:700>else</span> {
-        <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>this</span>.numToUint8Array()
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.isNumber) {
+      <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.num!! &lt; 0) {
+        <span style=font-weight:700>this</span>.big = BigInt(<span style=font-weight:700>this</span>.num)
+        <span style=color:#888;font-style:italic>// TODO: use big for more concise representation, it eliminates negative padding
+</span><span style=color:#888;font-style:italic></span>      } <span style=font-weight:700>else</span> {
+        <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.numToUint8Array()
       }
     }
-    <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>this</span>.bigToUint8Array()
+    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.bigToUint8Array()
   }
 
-  getScale(): <span style=color:#fff;font-weight:700>number</span> {
-    <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>this</span>.scale
+  getScale(): <span style=font-weight:700>number</span> {
+    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.scale
   }
 
   toString() {
-    <span style=color:#fff;font-weight:700>let</span> s: <span style=color:#fff;font-weight:700>string</span>
-    <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>this</span>.isNumber) {
-      s = <span style=color:#fff;font-weight:700>this</span>.num!!.toString()
-    } <span style=color:#fff;font-weight:700>else</span> {
-      s = <span style=color:#fff;font-weight:700>this</span>.big!!.toString()
+    <span style=font-weight:700;font-style:italic>let</span> s: <span style=font-weight:700>string</span>
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.isNumber) {
+      s = <span style=font-weight:700>this</span>.num!!.toString()
+    } <span style=font-weight:700>else</span> {
+      s = <span style=font-weight:700>this</span>.big!!.toString()
     }
-    <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>this</span>.scale == <span style=color:#ff0;font-weight:700>0</span>) {
-      <span style=color:#fff;font-weight:700>return</span> s
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.scale == 0) {
+      <span style=font-weight:700>return</span> s
     }
-    <span style=color:#fff;font-weight:700>if</span> (<span style=color:#fff;font-weight:700>this</span>.scale &gt; s.length) {
-      <span style=color:#fff;font-weight:700>throw</span> <span style=color:#fff;font-weight:700>new</span> <span style=color:#fff;font-weight:700>Error</span>(<span style=color:#0ff;font-weight:700>`scale </span><span style=color:#0ff;font-weight:700>${</span><span style=color:#fff;font-weight:700>this</span>.scale<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700> shouldn&#39;t be bigger than length: </span><span style=color:#0ff;font-weight:700>${</span>s.length<span style=color:#0ff;font-weight:700>}</span><span style=color:#0ff;font-weight:700>`</span>)
+    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.scale &gt; s.length) {
+      <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>`scale </span><span style=color:#666;font-style:italic>${</span><span style=font-weight:700>this</span>.scale<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic> shouldn&#39;t be bigger than length: </span><span style=color:#666;font-style:italic>${</span>s.length<span style=color:#666;font-style:italic>}</span><span style=color:#666;font-style:italic>`</span>)
     }
-    <span style=color:#fff;font-weight:700>const</span> dot = s.length - <span style=color:#fff;font-weight:700>this</span>.scale
-    <span style=color:#fff;font-weight:700>if</span> (dot === <span style=color:#ff0;font-weight:700>0</span>) {
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#0ff;font-weight:700>&#39;0.&#39;</span>.concat(s)
+    <span style=font-weight:700>const</span> dot = s.length - <span style=font-weight:700>this</span>.scale
+    <span style=font-weight:700>if</span> (dot === 0) {
+      <span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#39;0.&#39;</span>.concat(s)
     }
-    <span style=color:#fff;font-weight:700>return</span> s.slice(<span style=color:#ff0;font-weight:700>0</span>, dot).concat(<span style=color:#0ff;font-weight:700>&#39;.&#39;</span>).concat(s.slice(dot))
+    <span style=font-weight:700>return</span> s.slice(0, dot).concat(<span style=color:#666;font-style:italic>&#39;.&#39;</span>).concat(s.slice(dot))
   }
 
-  <span style=color:#fff;font-weight:700>static</span> fromBytes(a: <span style=color:#fff;font-weight:700>Uint8Array</span>, scale?: <span style=color:#fff;font-weight:700>number</span>): BigDecimal {
-    <span style=color:#fff;font-weight:700>if</span> (!a.length) {
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> BigDecimal(<span style=color:#ff0;font-weight:700>0</span>)
+  <span style=font-weight:700>static</span> fromBytes(a: <span style=font-weight:700>Uint8Array</span>, scale?: <span style=font-weight:700>number</span>): BigDecimal {
+    <span style=font-weight:700>if</span> (!a.length) {
+      <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(0)
     }
-    <span style=color:#fff;font-weight:700>const</span> hex = Buffer.<span style=color:#fff;font-weight:700>from</span>(a).toString(<span style=color:#0ff;font-weight:700>&#39;hex&#39;</span>)
-    <span style=color:#fff;font-weight:700>let</span> big = BigInt(<span style=color:#0ff;font-weight:700>&#39;0x&#39;</span> + hex)
-    <span style=color:#fff;font-weight:700>if</span> (a[<span style=color:#ff0;font-weight:700>0</span>] &amp; <span style=color:#ff0;font-weight:700>0x80</span>) {
-      <span style=color:#fff;font-weight:700>const</span> negative = BigInt(<span style=color:#0ff;font-weight:700>&#39;0x1&#39;</span> + <span style=color:#0ff;font-weight:700>&#39;0&#39;</span>.repeat(hex.length))
+    <span style=font-weight:700>const</span> hex = Buffer.<span style=font-weight:700>from</span>(a).toString(<span style=color:#666;font-style:italic>&#39;hex&#39;</span>)
+    <span style=font-weight:700;font-style:italic>let</span> big = BigInt(<span style=color:#666;font-style:italic>&#39;0x&#39;</span> + hex)
+    <span style=font-weight:700>if</span> (a[0] &amp; 0x80) {
+      <span style=font-weight:700>const</span> negative = BigInt(<span style=color:#666;font-style:italic>&#39;0x1&#39;</span> + <span style=color:#666;font-style:italic>&#39;0&#39;</span>.repeat(hex.length))
       big -= negative
     }
-    <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> BigDecimal(big, scale)
+    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(big, scale)
   }
 
-  <span style=color:#fff;font-weight:700>static</span> fromString(s: <span style=color:#fff;font-weight:700>string</span>): BigDecimal {
-    <span style=color:#fff;font-weight:700>const</span> dot = s.indexOf(<span style=color:#0ff;font-weight:700>&#39;.&#39;</span>)
-    <span style=color:#fff;font-weight:700>const</span> minus = s.indexOf(<span style=color:#0ff;font-weight:700>&#39;-&#39;</span>)
-    <span style=color:#fff;font-weight:700>if</span> (dot === -<span style=color:#ff0;font-weight:700>1</span>) {
-      <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> BigDecimal(BigInt(s), <span style=color:#ff0;font-weight:700>0</span>)
+  <span style=font-weight:700>static</span> fromString(s: <span style=font-weight:700>string</span>): BigDecimal {
+    <span style=font-weight:700>const</span> dot = s.indexOf(<span style=color:#666;font-style:italic>&#39;.&#39;</span>)
+    <span style=font-weight:700>const</span> minus = s.indexOf(<span style=color:#666;font-style:italic>&#39;-&#39;</span>)
+    <span style=font-weight:700>if</span> (dot === -1) {
+      <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(BigInt(s), 0)
     }
-    <span style=color:#fff;font-weight:700>if</span> (dot === s.length - <span style=color:#ff0;font-weight:700>1</span>) {
-      s = s.slice(<span style=color:#ff0;font-weight:700>0</span>, s.length - <span style=color:#ff0;font-weight:700>1</span>)
+    <span style=font-weight:700>if</span> (dot === s.length - 1) {
+      s = s.slice(0, s.length - 1)
     }
-    <span style=color:#007f7f>// .-1234
-</span><span style=color:#007f7f></span>    <span style=color:#fff;font-weight:700>if</span> (dot == <span style=color:#ff0;font-weight:700>0</span> &amp;&amp; minus == <span style=color:#ff0;font-weight:700>1</span>) {
-      <span style=color:#fff;font-weight:700>throw</span> <span style=color:#fff;font-weight:700>new</span> <span style=color:#fff;font-weight:700>Error</span>(<span style=color:#0ff;font-weight:700>&#39;invalid big decimal number&#39;</span>.concat(s))
+    <span style=color:#888;font-style:italic>// .-1234
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot == 0 &amp;&amp; minus == 1) {
+      <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>&#39;invalid big decimal number&#39;</span>.concat(s))
     }
-    s = s.slice(<span style=color:#ff0;font-weight:700>0</span>, dot).concat(s.slice(dot + <span style=color:#ff0;font-weight:700>1</span>))
-    <span style=color:#007f7f>// -.1234 = -0.1234
-</span><span style=color:#007f7f></span>    <span style=color:#fff;font-weight:700>if</span> (dot == <span style=color:#ff0;font-weight:700>1</span> &amp;&amp; minus == <span style=color:#ff0;font-weight:700>0</span>) {
-      <span style=color:#007f7f>// TODO
-</span><span style=color:#007f7f></span>    }
-    <span style=color:#fff;font-weight:700>return</span> <span style=color:#fff;font-weight:700>new</span> BigDecimal(BigInt(s), s.length - dot)
+    s = s.slice(0, dot).concat(s.slice(dot + 1))
+    <span style=color:#888;font-style:italic>// -.1234 = -0.1234
+</span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot == 1 &amp;&amp; minus == 0) {
+      <span style=color:#888;font-style:italic>// TODO
+</span><span style=color:#888;font-style:italic></span>    }
+    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(BigInt(s), s.length - dot)
   }
 }
 </code></pre></div><h2 id=go-implementation>Go implementation
-<a class=heading-link href=#go-implementation><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre style=color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#fff;font-weight:700>var</span> one = big.NewInt(<span style=color:#ff0;font-weight:700>1</span>)
+<a class=heading-link href=#go-implementation><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>var</span> one = big.<span style=color:#666;font-weight:700;font-style:italic>NewInt</span>(1)
 
-<span style=color:#007f7f>// SetSignedBytes sets the value of n to the big-endian two&#39;s complement
-</span><span style=color:#007f7f>// value stored in the given data. If data[0]&amp;80 != 0, the number
-</span><span style=color:#007f7f>// is negative. If data is empty, the result will be 0.
-</span><span style=color:#007f7f></span><span style=color:#fff;font-weight:700>func</span> SetSignedBytes(n *big.Int, data []<span style=color:#fff;font-weight:700>byte</span>) {
-	n.SetBytes(data)
-	<span style=color:#fff;font-weight:700>if</span> <span style=color:#fff;font-weight:700>len</span>(data) &gt; <span style=color:#ff0;font-weight:700>0</span> &amp;&amp; data[<span style=color:#ff0;font-weight:700>0</span>]&amp;<span style=color:#ff0;font-weight:700>0x80</span> &gt; <span style=color:#ff0;font-weight:700>0</span> {
-		n.Sub(n, <span style=color:#fff;font-weight:700>new</span>(big.Int).Lsh(one, <span style=color:#fff;font-weight:700>uint</span>(<span style=color:#fff;font-weight:700>len</span>(data))*<span style=color:#ff0;font-weight:700>8</span>))
+<span style=color:#888;font-style:italic>// SetSignedBytes sets the value of n to the big-endian two&#39;s complement
+</span><span style=color:#888;font-style:italic>// value stored in the given data. If data[0]&amp;80 != 0, the number
+</span><span style=color:#888;font-style:italic>// is negative. If data is empty, the result will be 0.
+</span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>SetSignedBytes</span>(n *big.Int, data []<span style=font-weight:700>byte</span>) {
+	n.<span style=color:#666;font-weight:700;font-style:italic>SetBytes</span>(data)
+	<span style=font-weight:700>if</span> <span style=font-weight:700;font-style:italic>len</span>(data) &gt; 0 &amp;&amp; data[0]&amp;0x80 &gt; 0 {
+		n.<span style=color:#666;font-weight:700;font-style:italic>Sub</span>(n, <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Lsh</span>(one, <span style=font-weight:700;font-style:italic>uint</span>(<span style=font-weight:700;font-style:italic>len</span>(data))*8))
 	}
 }
 
-<span style=color:#007f7f>// SignedBytes returns the big-endian two&#39;s complement
-</span><span style=color:#007f7f>// form of n.
-</span><span style=color:#007f7f></span><span style=color:#fff;font-weight:700>func</span> SignedBytes(n *big.Int) []<span style=color:#fff;font-weight:700>byte</span> {
-	<span style=color:#fff;font-weight:700>switch</span> n.Sign() {
-	<span style=color:#fff;font-weight:700>case</span> <span style=color:#ff0;font-weight:700>0</span>:
-		<span style=color:#fff;font-weight:700>return</span> []<span style=color:#fff;font-weight:700>byte</span>{<span style=color:#ff0;font-weight:700>0</span>}
-	<span style=color:#fff;font-weight:700>case</span> <span style=color:#ff0;font-weight:700>1</span>:
-		b := n.Bytes()
-		<span style=color:#fff;font-weight:700>if</span> b[<span style=color:#ff0;font-weight:700>0</span>]&amp;<span style=color:#ff0;font-weight:700>0x80</span> &gt; <span style=color:#ff0;font-weight:700>0</span> {
-			b = <span style=color:#fff;font-weight:700>append</span>([]<span style=color:#fff;font-weight:700>byte</span>{<span style=color:#ff0;font-weight:700>0</span>}, b...)
+<span style=color:#888;font-style:italic>// SignedBytes returns the big-endian two&#39;s complement
+</span><span style=color:#888;font-style:italic>// form of n.
+</span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>SignedBytes</span>(n *big.Int) []<span style=font-weight:700>byte</span> {
+	<span style=font-weight:700>switch</span> n.<span style=color:#666;font-weight:700;font-style:italic>Sign</span>() {
+	<span style=font-weight:700>case</span> 0:
+		<span style=font-weight:700>return</span> []<span style=font-weight:700>byte</span>{0}
+	<span style=font-weight:700>case</span> 1:
+		b := n.<span style=color:#666;font-weight:700;font-style:italic>Bytes</span>()
+		<span style=font-weight:700>if</span> b[0]&amp;0x80 &gt; 0 {
+			b = <span style=font-weight:700;font-style:italic>append</span>([]<span style=font-weight:700>byte</span>{0}, b...)
 		}
-		<span style=color:#fff;font-weight:700>return</span> b
-	<span style=color:#fff;font-weight:700>case</span> -<span style=color:#ff0;font-weight:700>1</span>:
-		length := <span style=color:#fff;font-weight:700>uint</span>(n.BitLen()/<span style=color:#ff0;font-weight:700>8</span>+<span style=color:#ff0;font-weight:700>1</span>) * <span style=color:#ff0;font-weight:700>8</span>
-		b := <span style=color:#fff;font-weight:700>new</span>(big.Int).Add(n, <span style=color:#fff;font-weight:700>new</span>(big.Int).Lsh(one, length)).Bytes()
-		<span style=color:#007f7f>// When the most significant bit is on a byte
-</span><span style=color:#007f7f></span>		<span style=color:#007f7f>// boundary, we can get some extra significant
-</span><span style=color:#007f7f></span>		<span style=color:#007f7f>// bits, so strip them off when that happens.
-</span><span style=color:#007f7f></span>		<span style=color:#fff;font-weight:700>if</span> <span style=color:#fff;font-weight:700>len</span>(b) &gt;= <span style=color:#ff0;font-weight:700>2</span> &amp;&amp; b[<span style=color:#ff0;font-weight:700>0</span>] == <span style=color:#ff0;font-weight:700>0xff</span> &amp;&amp; b[<span style=color:#ff0;font-weight:700>1</span>]&amp;<span style=color:#ff0;font-weight:700>0x80</span> != <span style=color:#ff0;font-weight:700>0</span> {
-			b = b[<span style=color:#ff0;font-weight:700>1</span>:]
+		<span style=font-weight:700>return</span> b
+	<span style=font-weight:700>case</span> -1:
+		length := <span style=font-weight:700;font-style:italic>uint</span>(n.<span style=color:#666;font-weight:700;font-style:italic>BitLen</span>()/8+1) * 8
+		b := <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Add</span>(n, <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Lsh</span>(one, length)).<span style=color:#666;font-weight:700;font-style:italic>Bytes</span>()
+		<span style=color:#888;font-style:italic>// When the most significant bit is on a byte
+</span><span style=color:#888;font-style:italic></span>		<span style=color:#888;font-style:italic>// boundary, we can get some extra significant
+</span><span style=color:#888;font-style:italic></span>		<span style=color:#888;font-style:italic>// bits, so strip them off when that happens.
+</span><span style=color:#888;font-style:italic></span>		<span style=font-weight:700>if</span> <span style=font-weight:700;font-style:italic>len</span>(b) &gt;= 2 &amp;&amp; b[0] == 0xff &amp;&amp; b[1]&amp;0x80 != 0 {
+			b = b[1:]
 		}
-		<span style=color:#fff;font-weight:700>return</span> b
+		<span style=font-weight:700>return</span> b
 	}
-	<span style=color:#fff;font-weight:700>panic</span>(<span style=color:#0ff;font-weight:700>&#34;unreachable&#34;</span>)
+	<span style=font-weight:700;font-style:italic>panic</span>(<span style=color:#666;font-style:italic>&#34;unreachable&#34;</span>)
 }
-</code></pre></div><p>Comments: <a href=https://www.reddit.com/r/javascript/comments/i1qpq7/bigint_to_uint8array/>reddit</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
+</code></pre></div><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer><section class=see-also></section></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2021
 Jackie Li
