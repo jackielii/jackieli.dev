@@ -52,7 +52,8 @@ and still bites me from time to time. Consider this example:</p><div class=highl
 	<span style=font-weight:700;font-style:italic>println</span>(bar.Baz)
 }
 </code></pre></div><p>It&rsquo;ll print <code>doom</code> not <code>hello bar</code>. It&rsquo;s easy to see why in this simple
-program, but when it&rsquo;s nested in structs, it could get very long debug process.</p><div class="notice note"><div class=notice-title><i class="fa fa-sticky-note" aria-hidden=true></i>Note</div><div class=notice-content>If you embed a sync.Mutex in a struct and you attempt to use a value receiver,
+program, but when it&rsquo;s nested in structs, it could be a very long debugging
+process. Leave a comment in <a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a> if you would like further explanation.</p><div class="notice note"><div class=notice-title><i class="fa fa-sticky-note" aria-hidden=true></i>Note</div><div class=notice-content>If you embed a sync.Mutex in a struct and you attempt to use a value receiver,
 go vet will warn you about it. Try running <code>go tool vet help copylocks</code></div></div><p>The main trick I want to share today probably seems very normal to any C or C++
 programmers. But it is very useful in practice.</p><h3 id=the-problem>The problem
 <a class=heading-link href=#the-problem><i class="fa fa-link" aria-hidden=true></i></a></h3><p>I have a proto generated struct or some struct that I don&rsquo;t own and I need to
@@ -136,7 +137,7 @@ db.<span style=color:#666;font-weight:700;font-style:italic>QueryRow</span>(<spa
 </code></pre></div><p>In the <code>timestamppb.Timestamp</code> example, I&rsquo;m using the pointer of pointer to the
 struct because I need the set the pointer value, not the actual value.</p><p>It can make your head spin the whole pointer to pointer thing. Well, I&rsquo;ll
 admit, it still does to me from time to time. Just need a bit more practice I
-suppose?</p></div><footer></footer></article></section></div><footer class=footer><section class=container>©
+suppose?</p><p><a href=https://github.com/jackielii/jackieli.dev/discussions>Discussions</a></p></div><footer></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2021
 Jackie Li
