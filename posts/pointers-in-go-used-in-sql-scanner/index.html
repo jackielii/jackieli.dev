@@ -1,0 +1,144 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=content-language content="en"><meta name=color-scheme content="light dark"><meta name=author content="Jackie Li"><meta name=description content="Golang sql.Scan without sql.NullString"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="Pointers in Go - used in sql.Scanner"><meta name=twitter:description content="Golang sql.Scan without sql.NullString"><meta property="og:title" content="Pointers in Go - used in sql.Scanner"><meta property="og:description" content="Golang sql.Scan without sql.NullString"><meta property="og:type" content="article"><meta property="og:url" content="https://www.jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-26T12:40:10+01:00"><meta property="article:modified_time" content="2021-06-26T12:40:10+01:00"><title>Pointers in Go - used in sql.Scanner · jackieli.dev</title><link rel=canonical href=https://www.jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/><link rel=preload href="https://www.jackieli.dev/fonts/forkawesome-webfont.woff2?v=1.2.0" as=font type=font/woff2 crossorigin><link rel=stylesheet href=https://www.jackieli.dev/css/coder.min.34dfa7b2f5cdeb0f5302b2628f4a7a4bfe88a2431e1397ee4ec605c56ab69701.css integrity="sha256-NN+nsvXN6w9TArJij0p6S/6IokMeE5fuTsYFxWq2lwE=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://www.jackieli.dev/css/coder-dark.min.d8f89ef09509afb63b9b2595ee174e53cc51ce02a6f6a2179e1621f9389e4340.css integrity="sha256-2Pie8JUJr7Y7myWV7hdOU8xRzgKm9qIXnhYh+TieQ0A=" crossorigin=anonymous media=screen><link rel=icon type=image/png href=https://www.jackieli.dev/images/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://www.jackieli.dev/images/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=https://www.jackieli.dev/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=https://www.jackieli.dev/images/apple-touch-icon.png><script defer src=https://twemoji.maxcdn.com/v/13.0.2/twemoji.min.js integrity=sha384-wyB/MspSJ/r2bT2kCj44qtsYRYlpzO2oAPhRj5myrWD63dt6qWv4x8AZe7Fl3K3b crossorigin=anonymous></script><meta name=generator content="Hugo 0.84.1"></head><body class="preload-transitions colorscheme-auto" onload=twemoji.parse(document.body)><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://www.jackieli.dev/>jackieli.dev</a>
+<input type=checkbox id=menu-toggle>
+<label class="menu-button float-right" for=menu-toggle><i class="fa fa-bars fa-fw" aria-hidden=true></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://www.jackieli.dev/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://www.jackieli.dev/posts/>Posts</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title><a class=title-link href=https://www.jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/>Pointers in Go - used in sql.Scanner</a></h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fa fa-calendar" aria-hidden=true></i>
+<time datetime=2021-06-26T12:40:10+01:00>26 Jun 2021</time></span>
+<span class=reading-time><i class="fa fa-clock-o" aria-hidden=true></i>
+4-minute read</span></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
+<span class=tag><a href=https://www.jackieli.dev/tags/go/>go</a></span>
+<span class=separator>•</span>
+<span class=tag><a href=https://www.jackieli.dev/tags/pointers/>pointers</a></span>
+<span class=separator>•</span>
+<span class=tag><a href=https://www.jackieli.dev/tags/sql/>sql</a></span></div></div></header><div><p>Firstly a fun fact a lot people don&rsquo;t know: when passing values between
+functions, it&rsquo;s cheaper to pass values instead of pointers in Go. Reason is
+pointers to objects <em>could</em> be allocated on heap and it takes the computer more
+efforts to managed heap memory. While values are save on the stack, and stack
+is cheaper. For example, it&rsquo;s preferable to:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>type</span> Foo <span style=font-weight:700;font-style:italic>struct</span> {
+	Bar <span style=font-weight:700>string</span>
+}
+
+<span style=font-weight:700;font-style:italic>func</span> (f Foo) <span style=color:#666;font-weight:700;font-style:italic>Echo</span>() {
+	<span style=font-weight:700;font-style:italic>println</span>(f.Bar)
+}
+</code></pre></div><p>In above example, <code>Echo</code> method will not change the value of Foo, so there is
+no need to have the method receiver as a pointer.</p><p>Obviously Go compiler has gotten cleverer over the years and will do a lot more
+escape analysis to determine if a pointer to struct can be allocated only on
+stack. But I think it&rsquo;s still a good practice to use value instead of pointers
+whenever you can.</p><p>Now here is a subtle bug that if used the value receive pattern incorrectly,
+can be tricky to track down. It certainly cost me quite some time a while ago
+and still bites me from time to time. Consider this example:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700>package</span> main
+
+<span style=font-weight:700;font-style:italic>type</span> Bar <span style=font-weight:700;font-style:italic>struct</span> {
+	Baz <span style=font-weight:700>string</span>
+}
+
+<span style=font-weight:700;font-style:italic>func</span> (b *Bar) <span style=color:#666;font-weight:700;font-style:italic>Update</span>() {
+	b.Baz = <span style=color:#666;font-style:italic>&#34;hello bar&#34;</span>
+}
+
+<span style=font-weight:700;font-style:italic>type</span> Foo <span style=font-weight:700;font-style:italic>struct</span> {
+	Bar Bar
+}
+
+<span style=font-weight:700;font-style:italic>func</span> (f Foo) <span style=color:#666;font-weight:700;font-style:italic>UpdateBar</span>() {
+	f.Bar.<span style=color:#666;font-weight:700;font-style:italic>Update</span>()
+}
+
+<span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>main</span>() {
+	bar := Bar{Baz: <span style=color:#666;font-style:italic>&#34;doom&#34;</span>}
+	foo := Foo{
+		Bar: bar,
+	}
+	foo.<span style=color:#666;font-weight:700;font-style:italic>UpdateBar</span>()
+	<span style=font-weight:700;font-style:italic>println</span>(bar.Baz)
+}
+</code></pre></div><p>It&rsquo;ll print <code>doom</code> not <code>hello bar</code>. It&rsquo;s easy to see why in this simple
+program, but when it&rsquo;s nested in structs, it could get very long debug process.</p><div class="notice note"><div class=notice-title><i class="fa fa-sticky-note" aria-hidden=true></i>Note</div><div class=notice-content>If you embed a sync.Mutex in a struct and you attempt to use a value receiver,
+go vet will warn you about it. Try running <code>go tool vet help copylocks</code></div></div><p>The main trick I want to share today probably seems very normal to any C or C++
+programmers. But it is very useful in practice.</p><h3 id=the-problem>The problem
+<a class=heading-link href=#the-problem><i class="fa fa-link" aria-hidden=true></i></a></h3><p>I have a proto generated struct or some struct that I don&rsquo;t own and I need to
+use it directly in sql scan. i.e. given the following struct:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>type</span> Node <span style=font-weight:700;font-style:italic>struct</span> {
+	ID 			<span style=font-weight:700>int</span>
+	Name 		<span style=font-weight:700>string</span>
+	CreatedAt 	timestamppb.Timestamp
+}
+</code></pre></div><p>However in database, I have <code>Name</code> and <code>CreatedAt</code> nullable, and I
+don&rsquo;t really want to create a new struct or new variable using <code>sql.NullString</code>
+just to use in <code>Row.Scan</code>.</p><h3 id=my-solution>My solution
+<a class=heading-link href=#my-solution><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>type</span> nullString <span style=font-weight:700;font-style:italic>struct</span> {
+	s *<span style=font-weight:700>string</span>
+}
+
+<span style=font-weight:700;font-style:italic>func</span> (ts nullString) <span style=color:#666;font-weight:700;font-style:italic>Scan</span>(value <span style=font-weight:700;font-style:italic>interface</span>{}) <span style=font-weight:700>error</span> {
+	<span style=font-weight:700>if</span> value == <span style=font-weight:700>nil</span> {
+		*ts.s = <span style=color:#666;font-style:italic>&#34;&#34;</span> <span style=color:#888;font-style:italic>// nil to empty
+</span><span style=color:#888;font-style:italic></span>		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
+	}
+	<span style=font-weight:700>switch</span> t := value.(<span style=font-weight:700;font-style:italic>type</span>) {
+	<span style=font-weight:700>case</span> <span style=font-weight:700>string</span>:
+		*ts.s = t
+	<span style=font-weight:700>default</span>:
+		<span style=font-weight:700>return</span> fmt.<span style=color:#666;font-weight:700;font-style:italic>Errorf</span>(<span style=color:#666;font-style:italic>&#34;expect string in sql scan, got: %T&#34;</span>, value)
+	}
+	<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
+}
+
+<span style=font-weight:700;font-style:italic>func</span> (n *nullString) <span style=color:#666;font-weight:700;font-style:italic>Value</span>() (driver.Value, <span style=font-weight:700>error</span>) {
+	<span style=font-weight:700>if</span> n.s == <span style=font-weight:700>nil</span> {
+		<span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#34;&#34;</span>, <span style=font-weight:700>nil</span>
+	}
+	<span style=font-weight:700>return</span> *n.s, <span style=font-weight:700>nil</span>
+}
+</code></pre></div><p>And use it like this:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>var</span> node Node
+
+db.<span style=color:#666;font-weight:700;font-style:italic>QueryRow</span>(<span style=color:#666;font-style:italic>&#34;select name from node where id=?&#34;</span>, id)
+	.<span style=color:#666;font-weight:700;font-style:italic>Scan</span>(<span style=color:#666;font-weight:700;font-style:italic>nullString</span>(&amp;node.Name))
+</code></pre></div><p>Note here I don&rsquo;t need the pointer to the nullString, and I&rsquo;m setting the value
+the pointer is pointing to directly. And I didn&rsquo;t need to create a
+<code>sql.NullString</code>.</p><p>And similarly, I can also create a <code>*timestamppb.Timestamp</code> scanner:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700>import</span> (
+	<span style=color:#666;font-style:italic>&#34;database/sql/driver&#34;</span>
+	<span style=color:#666;font-style:italic>&#34;fmt&#34;</span>
+	<span style=color:#666;font-style:italic>&#34;time&#34;</span>
+
+	<span style=color:#666;font-style:italic>&#34;google.golang.org/protobuf/types/known/timestamppb&#34;</span>
+)
+
+<span style=font-weight:700;font-style:italic>type</span> tsScanner <span style=font-weight:700;font-style:italic>struct</span> {
+	pt **timestamppb.Timestamp
+}
+
+<span style=color:#888;font-style:italic>// Scan implements sql.Scanner for protobuf Timestamp.
+</span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> (ts tsScanner) <span style=color:#666;font-weight:700;font-style:italic>Scan</span>(value <span style=font-weight:700;font-style:italic>interface</span>{}) <span style=font-weight:700>error</span> {
+	<span style=font-weight:700>if</span> value == <span style=font-weight:700>nil</span> {
+		*ts.pt = <span style=font-weight:700>nil</span>
+		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
+	}
+	<span style=font-weight:700>switch</span> t := value.(<span style=font-weight:700;font-style:italic>type</span>) {
+	<span style=font-weight:700>case</span> time.Time:
+		tspb := timestamppb.<span style=color:#666;font-weight:700;font-style:italic>New</span>(t)
+		*ts.pt = tspb
+	<span style=font-weight:700>default</span>:
+		<span style=font-weight:700>return</span> fmt.<span style=color:#666;font-weight:700;font-style:italic>Errorf</span>(<span style=color:#666;font-style:italic>&#34;expect time.Time in sql scan got: %T&#34;</span>, value)
+	}
+	<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
+}
+
+<span style=color:#888;font-style:italic>// Value implements driver.Valuer for protobukkf Timestamp.
+</span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> (ts tsScanner) <span style=color:#666;font-weight:700;font-style:italic>Value</span>() (driver.Value, <span style=font-weight:700>error</span>) {
+	<span style=font-weight:700>if</span> ts.pt == <span style=font-weight:700>nil</span> || *ts.pt == <span style=font-weight:700>nil</span> {
+		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>, <span style=font-weight:700>nil</span>
+	}
+	<span style=font-weight:700>return</span> (*ts.pt).<span style=color:#666;font-weight:700;font-style:italic>AsTime</span>(), <span style=font-weight:700>nil</span>
+}
+</code></pre></div><p>And use it:</p><div class=highlight><pre style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=font-weight:700;font-style:italic>var</span> node Node
+
+db.<span style=color:#666;font-weight:700;font-style:italic>QueryRow</span>(<span style=color:#666;font-style:italic>&#34;select created_at from node where id=?&#34;</span>, id)
+	.<span style=color:#666;font-weight:700;font-style:italic>Scan</span>(<span style=color:#666;font-weight:700;font-style:italic>tsScanner</span>(&amp;node.CreatedAt))
+</code></pre></div><p>In the <code>timestamppb.Timestamp</code> example, I&rsquo;m using the pointer of pointer to the
+struct because I need the set the pointer value, not the actual value.</p><p>It can make your head spin the whole pointer to pointer thing. Well, I&rsquo;ll
+admit, it still does to me from time to time. Just need a bit more practice I
+suppose?</p></div><footer></footer></article></section></div><footer class=footer><section class=container>©
+2019 -
+2021
+Jackie Li
+·
+Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main><script src=https://www.jackieli.dev/js/coder.min.03b17769f4f91ae35667e1f2a1ca8c16f50562576cf90ff32b3179926914daa5.js integrity="sha256-A7F3afT5GuNWZ+HyocqMFvUFYlds+Q/zKzF5kmkU2qU="></script><script type=application/javascript>var doNotTrack=!1;doNotTrack||(function(a,e,f,g,b,c,d){a.GoogleAnalyticsObject=b,a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)},a[b].l=1*new Date,c=e.createElement(f),d=e.getElementsByTagName(f)[0],c.async=1,c.src=g,d.parentNode.insertBefore(c,d)}(window,document,'script','https://www.google-analytics.com/analytics.js','ga'),ga('create','UA-173573373-1','auto'),ga('send','pageview'))</script></body></html>
