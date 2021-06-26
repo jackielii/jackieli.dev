@@ -1,4 +1,4 @@
-baseurl = "https://jackieli.dev"
+baseurl = "https://www.jackieli.dev"
 title = "jackieli.dev"
 
 theme = "hugo-coder"
@@ -9,9 +9,10 @@ defaultcontentlanguage = "en"
 paginate = 20
 canonifyurls = true
 
-pygmentsstyle = "b2"
-pygmentscodefences = true
-pygmentscodefencesguesssyntax = true
+pygmentsStyle = "algol_nu"
+pygmentsCodeFences = true
+pygmentsCodeFencesGuessSyntax = true
+enableEmoji = true
 
 # disqusShortname = "jackieli"
 googleAnalytics = "UA-173573373-1"
@@ -69,22 +70,22 @@ googleAnalytics = "UA-173573373-1"
 
 [[params.social]]
     name = "Github"
-    icon = "fab fa-github"
+    icon = "fa fa-2x fa-github"
     weight = 1
     url = "https://github.com/jackielii/"
-[[params.social]]
-    name = "Gitlab"
-    icon = "fab fa-gitlab"
-    weight = 2
-    url = "https://gitlab.com/jackie.li/"
+# [[params.social]]
+#     name = "Gitlab"
+#     icon = "fa fa-2x fa-gitlab"
+#     weight = 2
+#     url = "https://gitlab.com/jackie.li/"
 [[params.social]]
     name = "Twitter"
-    icon = "fab fa-twitter"
+    icon = "fa fa-2x fa-twitter"
     weight = 3
     url = "https://twitter.com/jackielii/"
 [[params.social]]
     name = "LinkedIn"
-    icon = "fab fa-linkedin"
+    icon = "fa fa-2x fa-linkedin"
     weight = 4
     url = "https://www.linkedin.com/in/jackie-li-82b10665/"
 # [[params.social]]
@@ -128,35 +129,3 @@ googleAnalytics = "UA-173573373-1"
             # url = "contact/"
 
 
-    # [languages.zh-cn]
-    #     languagename = "中"
-    #     title = "李宇星"
-
-    #     [languages.zh-cn.params]
-    #         author = "李宇星"
-    #         info = "就个程序员"
-    #         description = "描述?"
-    #         keywords = "想法, 心得"
-    #         footercontent = ""
-
-    #     [languages.zh-cn.menu]
-
-    #         [[languages.zh-cn.menu.main]]
-    #         name = "我"
-    #         weight = 1
-    #         url = "about/"
-
-    #         [[languages.zh-cn.menu.main]]
-    #         name = "随记"
-    #         weight = 2
-    #         url = "posts/"
-
-    #         [[languages.zh-cn.menu.main]]
-    #         name = "项目"
-    #         weight = 3
-    #         url = "projects/"
-
-    #         [[languages.zh-cn.menu.main]]
-    #         name = "联系"
-    #         weight = 5
-    #         url = "contact/"

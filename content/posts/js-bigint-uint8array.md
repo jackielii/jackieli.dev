@@ -56,6 +56,9 @@ export class BigDecimal {
     let hex = big.toString(16)
     if (hex.length % 2) {
       hex = '0' + hex
+    } else if (hex[0] === '8') {
+      // maximum positive need to prepend 0 otherwise resuts in negative number
+      hex = '00' + hex
     }
     const len = hex.length / 2
     const u8 = new Uint8Array(len)
@@ -69,6 +72,7 @@ export class BigDecimal {
     return u8
   }
 
+  // positive save integer to array
   numToUint8Array(): Uint8Array {
     let n = this.num!!
     const arr: number[] = []
@@ -82,6 +86,10 @@ export class BigDecimal {
     if (arr.length === 0) {
       return new Uint8Array([0])
     }
+    if (arr[0] & 0x80) {
+      arr.unshift(0)
+    }
+    // TODO: we could eliminate leading 1's e.g. 0xff80 == 0x80
     return new Uint8Array(arr)
   }
 
@@ -89,7 +97,6 @@ export class BigDecimal {
     if (this.isNumber) {
       if (this.num!! < 0) {
         this.big = BigInt(this.num)
-        // TODO: use big for more concise representation, it eliminates negative padding
       } else {
         return this.numToUint8Array()
       }
@@ -102,23 +109,57 @@ export class BigDecimal {
   }
 
   toString() {
+    // TODO: should try to improve this
+    // one idea is to put negative to the class. if we do this, we should
+    // improve the bigInt parsing as well as parsing positive is easier than
+    // parsing 2s compliment integer
     let s: string
     if (this.isNumber) {
       s = this.num!!.toString()
     } else {
       s = this.big!!.toString()
     }
-    if (this.scale == 0) {
+    if (!this.scale) {
       return s
     }
+    const negative = s.charAt(0) === '-'
+    if (negative) {
+      s = s.slice(1)
+    }
     if (this.scale > s.length) {
-      throw new Error(`scale ${this.scale} shouldn't be bigger than length: ${s.length}`)
+      s = s.padStart(this.scale, '0')
     }
-    const dot = s.length - this.scale
+    let dot = s.length - this.scale
     if (dot === 0) {
-      return '0.'.concat(s)
+      s = '0'.concat(s)
+      dot = 1
     }
-    return s.slice(0, dot).concat('.').concat(s.slice(dot))
+    s = s.slice(0, dot).concat('.').concat(s.slice(dot))
+    if (negative) {
+      return '-'.concat(s)
+    }
+    return s
+  }
+
+  toJSON() {
+    return this.toString()
+  }
+
+  equals(other: unknown) {
+    const n = this.isNumber ? this.num : this.big
+    if (other instanceof BigDecimal) {
+      const m = other.isNumber ? other.num : other.big
+      // eslint-disable-next-line eqeqeq
+      return m == n
+    }
+    if (typeof other === 'number') {
+      // eslint-disable-next-line eqeqeq
+      return n == other
+    }
+    if (typeof other === 'string') {
+      return this.toString() === other
+    }
+    return false
   }
 
   static fromBytes(a: Uint8Array, scale?: number): BigDecimal {
@@ -144,12 +185,12 @@ export class BigDecimal {
       s = s.slice(0, s.length - 1)
     }
     // .-1234
-    if (dot == 0 && minus == 1) {
+    if (dot === 0 && minus === 1) {
       throw new Error('invalid big decimal number'.concat(s))
     }
     s = s.slice(0, dot).concat(s.slice(dot + 1))
     // -.1234 = -0.1234
-    if (dot == 1 && minus == 0) {
+    if (dot === 1 && minus === 0) {
       // TODO
     }
     return new BigDecimal(BigInt(s), s.length - dot)
@@ -198,3 +239,5 @@ func SignedBytes(n *big.Int) []byte {
 	panic("unreachable")
 }
 ```
+
+[Discussions](https://github.com/jackielii/jackieli.dev/discussions)

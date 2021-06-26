@@ -10,7 +10,7 @@ externalLink = ""
 series = []
 +++
 
-So I need a way to represent LocalDate that can be found in `java.time` package. It turns out it's harder than how it sounds.
+So I need a way to represent LocalDate that can be found in `java.time` package. Turns out it's harder than it sounds.
 
 Take `LocalDateTime` for example: `LocalDateTime` is a relative date that's the same no matter which time zone you're in. The easiest thing is to just use string: `2020-07-25T01:02:03`. Note that there is no zone/offset information in the string
 

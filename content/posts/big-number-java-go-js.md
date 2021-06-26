@@ -9,7 +9,13 @@ externalLink = ""
 series = ["bigint"]
 +++
 
-Go & Javascript seems to be doing the same thing on BigInt: toBytes returns the absolute value of bytes. While Java returns the two's complement representation
+Go & Javascript seems to be doing the same thing on BigInt: toBytes returns the
+absolute value with the sign seperately. While Java returns the [Two's
+complement](https://en.wikipedia.org/wiki/Two%27s_complement) representation.
+It makes it just a bit trickier to get the right binary representation.
+
+[This post]({{< relref "./js-bigint-uint8array.md" >}}) explores ways to
+implement the Two's complement representation in javascript & Go
 
 ### javascript
 
@@ -57,7 +63,7 @@ println(Arrays.toString(BigDecimal("-257").unscaledValue().toByteArray()))
 // [-2, -1]
 ```
 
-The doc says:
+The doc of `unscaledValue` says:
 
 ```txt
 Returns a byte array containing the two's-complement representation of this
@@ -67,3 +73,5 @@ number of bytes required to represent this BigInteger, including at least one
 sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is
 compatible with the (byte[]) constructor.)
 ```
+
+[Discussions](https://github.com/jackielii/jackieli.dev/discussions)
