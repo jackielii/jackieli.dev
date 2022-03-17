@@ -1,21 +1,18 @@
-+++ 
++++
 date = 2022-03-17T17:15:09Z
 title = "Use dynamic proto in cel-go"
-slug = "use-dynamic-proto-in-cel-go" 
+slug = "use-dynamic-proto-in-cel-go"
 +++
 
 [Cel-go](https://github.com/google/cel-go) is an amazing library for evaluating
 expressions. The extensive proto support just makes it better.
 
-Let's explore an interesting question: if we were to build a evaluation service
-without knowing the actual proto definitions, i.e. without bundling the
-generated code, how can we still evaluate the expressions that requests the
-fields of the proto? That is if we only have the bytes of the proto messages,
-but don't have generated decoder, how do we evaluate.
+Let's explore an interesting problem: if we were to build a evaluation service
+without embedding the actual proto, i.e. without bundling the generated code
+that defines the struct, fields etc, how can we still evaluate the expressions
+that requests the contents of the proto messages?
 
-Let's start with this example:
-
-`proto`:
+Let's start with this proto:
 
 ```proto
 syntax = "proto3";
@@ -32,7 +29,7 @@ message Foo {
 
 ```go
 func messageBytes() []byte {
-	foo := &Foo{Foo: "foo"}
+	foo := &Foo{Foo: "foo message"}
 	b, err := proto.Marshal(foo)
 	if err != nil {
 		panic(err)
@@ -54,10 +51,13 @@ func descBytes() []byte {
 }
 ```
 
-Now if we receive the bytes of `messageBytes` and declare it as var `x` and
-evaluate `x.foo`, how do we do it? Turns out it's all supported within cel-go.
-We just register the all the file descriptor related to message `foo` and use
-dynamic message to wrap the bytes:
+Now if we know the bytes of `Foo` message using `messageBytes` and the proto
+descriptor also in bytes (every generated code has it). Then we declare it as
+var `x` and evaluate `x.foo`. And we should be able to get value `foo message`
+right?
+
+Turns out it's all supported within cel-go. We just register the all the file
+descriptor related to message `foo` and use dynamic message to wrap the bytes:
 
 ```go
 func exercise9() {
@@ -69,10 +69,10 @@ func exercise9() {
 	fooFullName := "main.Foo" // `main` is the proto package name
 	reg, err := protodesc.NewFiles(fileSet)
 	if err != nil { panic(err) }
-	desc, err := reg.FindDescriptorByName(protoreflect.FullName(fooFullName))
-	if err != nil { panic(err) }
 
 	// step 2: wrap it with dynamicpb message
+	desc, err := reg.FindDescriptorByName(protoreflect.FullName(fooFullName))
+	if err != nil { panic(err) }
 	msg := dynamicpb.NewMessage(desc.(protoreflect.MessageDescriptor))
 	err = proto.Unmarshal(messageBytes(), msg.Interface())
 	if err != nil { panic(err) }
@@ -90,6 +90,8 @@ func exercise9() {
 	vars := map[string]interface{}{"x": msg}
 	program, _ := env.Program(ast, cel.EvalOptions(cel.OptExhaustiveEval))
 	eval(program, vars)
+	
+	// output: foo message
 }
 ```
 
