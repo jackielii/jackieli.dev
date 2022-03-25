@@ -66,7 +66,7 @@ func main() {
 
 It'll print `doom` not `hello bar`. It's easy to see why in this simple
 program, but when it's nested in structs, it could be a very long debugging
-process. Leave a comment in [Discussions](https://github.com/jackielii/jackieli.dev/discussions) if you would like further explanation.
+process.
 
 {{< notice note >}}
 If you embed a sync.Mutex in a struct and you attempt to use a value receiver,
@@ -190,5 +190,3 @@ struct because I need the set the pointer value, not the actual value.
 It can make your head spin the whole pointer to pointer thing. Well, I'll
 admit, it still does to me from time to time. Just need a bit more practice I
 suppose?
-
-[Discussions](https://github.com/jackielii/jackieli.dev/discussions)

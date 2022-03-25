@@ -239,5 +239,3 @@ func SignedBytes(n *big.Int) []byte {
 	panic("unreachable")
 }
 ```
-
-[Discussions](https://github.com/jackielii/jackieli.dev/discussions)

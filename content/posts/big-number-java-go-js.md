@@ -73,5 +73,3 @@ number of bytes required to represent this BigInteger, including at least one
 sign bit, which is (ceil((this.bitLength() + 1)/8)). (This representation is
 compatible with the (byte[]) constructor.)
 ```
-
-[Discussions](https://github.com/jackielii/jackieli.dev/discussions)
