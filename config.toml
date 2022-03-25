@@ -1,4 +1,4 @@
-baseurl = "https://www.jackieli.dev"
+baseurl = "https://jackieli.dev"
 title = "jackieli.dev"
 
 theme = "hugo-coder"
