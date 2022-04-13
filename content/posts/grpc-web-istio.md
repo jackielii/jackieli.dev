@@ -39,7 +39,7 @@ separate gateway dedicated to GRPC. The solution roughly looks like this:
 This has a few issues:
 
 1. We're adding an extra open port to outside world: more attacking surface
-2. The new grpc only port doesn't have TLS or needs a separate TLS config
+2. The new grpc-only port doesn't have TLS or needs a separate TLS config
 3. We added a sidecar pod for every grpc service that we want to expose as
    GRPC-Web: wasted resources when we don't need service mesh
 
