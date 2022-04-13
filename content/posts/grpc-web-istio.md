@@ -140,7 +140,7 @@ spec:
     - name: grpc # name has to start with grpc, alternatively use appProtocol below
       port: 12345
       # or use appProtocol for Kubernetes 1.18+
-      # appProtocol: https
+      # appProtocol: grpc
 ```
 
 Full example on [github](https://github.com/jackieli-tes/learn-grpc-web-istio).
