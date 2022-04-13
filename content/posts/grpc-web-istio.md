@@ -36,10 +36,12 @@ separate gateway dedicated to GRPC. The solution roughly looks like this:
 
 `gateway:443` -> `pod sidecar` -> `app`
 
-This obviously has 2 issues:
+This has a few issues:
 
 1. We're adding an extra open port to outside world: more attacking surface
 2. The new grpc only port doesn't have TLS or needs a separate TLS config
+3. We added a sidecar pod for every grpc service that we want to expose as
+   GRPC-Web: wasted resources when we don't need service mesh
 
 This is definitely not right when evnoy supports the use case so well, but why
 does it feels so difficult on Istio's side?
