@@ -125,5 +125,23 @@ And importantly the service needs to have `grpc` in the service name or use
 `appProtocol`:
 [ref](https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection)
 
+```yaml
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: hello-grpc
+  namespace: default
+spec:
+  selector:
+    app: hello-grpc
+  type: LoadBalancer
+  ports:
+    - name: grpc # name has to start with grpc, alternatively use appProtocol below
+      port: 12345
+      # or use appProtocol for Kubernetes 1.18+
+      # appProtocol: https
+```
+
 Full example on [github](https://github.com/jackieli-tes/learn-grpc-web-istio).
 There are some useful debug commands that helped.
