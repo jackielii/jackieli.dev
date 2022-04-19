@@ -66,6 +66,8 @@ well)
 
 ## The solution
 
+`gateway:443` -> `app` for both `grpc` & `grpc-web`
+
 **envoy filter**
 
 ```yaml
