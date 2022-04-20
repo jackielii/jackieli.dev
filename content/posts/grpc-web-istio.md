@@ -9,12 +9,12 @@ externalLink = ""
 series = []
 +++
 
-Envoy always had grpc-web support very ealy on. It's used in the official
-grpc-web [tutorial
-docs](https://github.com/grpc/grpc-web#2-run-the-server-and-proxy). The [envoy
+Envoy had grpc-web support ealy on. It's used in the official grpc-web
+[tutorial docs](https://github.com/grpc/grpc-web#2-run-the-server-and-proxy).
+In the [envoy
 config](https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml)
-supports both grpc & grpcWeb via one `listener` on on port out of the box. This
-is important when you have a production deployment in which some clients
+of this tutorial, both grpc & grpcWeb are exposed via a single `listener` port.
+This is nice model when you have a production deployment in which some clients
 (mobile apps) want to speak to the GRPC protocol directly, but web apps want to
 go down to http/1.1 to work with browsers' xhr or fetch requests.
 
