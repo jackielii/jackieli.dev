@@ -7,12 +7,12 @@
 <a href=https://jackieli.dev/categories/grpc-web/>gRPC-Web</a></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
 <span class=tag><a href=https://jackieli.dev/tags/istio/>istio</a></span>
 <span class=separator>•</span>
-<span class=tag><a href=https://jackieli.dev/tags/kubernetes/>kubernetes</a></span></div></div></header><div><p>Envoy always had grpc-web support very ealy on. It&rsquo;s used in the official
-grpc-web <a href=https://github.com/grpc/grpc-web#2-run-the-server-and-proxy>tutorial
-docs</a>. The <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml>envoy
+<span class=tag><a href=https://jackieli.dev/tags/kubernetes/>kubernetes</a></span></div></div></header><div><p>Envoy had grpc-web support ealy on. It&rsquo;s used in the official grpc-web
+<a href=https://github.com/grpc/grpc-web#2-run-the-server-and-proxy>tutorial docs</a>.
+In the <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml>envoy
 config</a>
-supports both grpc & grpcWeb via one <code>listener</code> on on port out of the box. This
-is important when you have a production deployment in which some clients
+of this tutorial, both grpc & grpcWeb are exposed via a single <code>listener</code> port.
+This is nice model when you have a production deployment in which some clients
 (mobile apps) want to speak to the GRPC protocol directly, but web apps want to
 go down to http/1.1 to work with browsers&rsquo; xhr or fetch requests.</p><p>In production, we use istio as our gateway, but we have always struggled to
 utilise one single port to proxy both GRPC and GRPC-Web requests, even though
