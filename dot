@@ -1,12 +1,10 @@
 #!/bin/bash
 
-set -e
-
 echo "Installing homebrew"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install yadm gpg
 
-echo "Run this in $HOME directory"
+export GIT_CONFIG_NOSYSTEM=1
 
 echo "Cloning jackielii/dotfiles"
 yadm clone https://github.com/jackielii/dotfiles.git
