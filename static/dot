@@ -9,4 +9,4 @@ echo "Installing homebrew"
 brew install yadm gpg
 
 echo "Cloning jackielii/dotfiles"
-yadm clone https://github.com/jackielii/dotfiles.git
+yadm clone https://github.com/jackielii/dotfiles.git --bootstrap
