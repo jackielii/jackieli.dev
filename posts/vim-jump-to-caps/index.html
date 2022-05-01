@@ -17,8 +17,8 @@ press <code>w</code> and hold until I&rsquo;m there? Or do I jump to the end and
 this mapping:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>&#34; L/H to move to the next/previous capital letter of a word
 </span></span><span style=display:flex><span>nmap &lt;silent&gt; L :call search(&#39;\&lt;\u&#39;, &#39;&#39;, line(&#39;.&#39;))&lt;CR&gt;
 </span></span><span style=display:flex><span>nmap &lt;silent&gt; H :call search(&#39;\&lt;\u&#39;, &#39;b&#39;, line(&#39;.&#39;))&lt;CR&gt;
-</span></span></code></pre></div><p>It uses <code>search</code> so it doesn&rsquo;t add anything to your search register. I used <code>H</code>
-& <code>L</code>. It feels similiar to move left and right <code>h</code> & <code>l</code>, but faster.</p><p>It&rsquo;s especially convenient because when I use this jump, I also want to query
+</span></span></code></pre></div><p>It uses <code>search</code> function so it doesn&rsquo;t add anything to your search register. I
+used <code>H</code> & <code>L</code>. It feels similiar to move left and right <code>h</code> & <code>l</code>, but faster.</p><p>It&rsquo;s especially convenient because when I use this jump, I also want to query
 the documentation of such methods using <code>K</code>:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>nnoremap &lt;silent&gt; K :call &lt;SID&gt;show_documentation()&lt;CR&gt;
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>function! s:show_documentation()
