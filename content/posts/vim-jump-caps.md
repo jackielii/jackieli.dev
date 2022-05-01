@@ -63,5 +63,5 @@ endfunction
 ```
 
 So often I only have to press `H` followed by `K` - _only three_ key presses
-including `Shift` when I moved to a line and quickly jump to a public exported
-method in Go and query it's documentation.
+including `Shift` when I moved to a line and wanting to quickly jump to a
+public exported method and query it's documentation.
