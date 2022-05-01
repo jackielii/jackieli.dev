@@ -19,7 +19,7 @@ starts with capital letters. E.g.
 
 When you cursor is at `<>` there are a few ways to quickly jump to `Println`:
 
-1. press `w` twice
+1. press `w` **three** times (because there is a dot)
 2. press `fP`
 3. press `l` many times until you're at `P`
 
