@@ -99,7 +99,7 @@ func main() {
 	env.ExecuteWorkflow(Workflow)
 	err := env.GetWorkflowError()
 	if err != nil {
-		log.Fatalf("[ERROR] not expecting workflow: %v", err)
+		log.Fatalf("[ERROR] not expecting workflow error: %v", err)
 	}
 	var result any
 	err = env.GetWorkflowResult(&result)
