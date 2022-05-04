@@ -35,6 +35,8 @@ func Workflow(ctx workflow.Context) (string, error) {
 			workflow.Sleep(ctx, 3*time.Second)
 			if ctx.Err() != nil {
 				println("ctx error", ctx.Err().Error())
+			} else {
+				panic("shouldn't be here")
 			}
 			return nil
 		})
@@ -106,4 +108,16 @@ func main() {
 	}
 	log.Printf("result: %v", result)
 }
+```
+
+Result is:
+
+```
+2022/05/04 22:26:45 DEBUG RequestCancelTimer TimerID 1
+2022/05/04 22:26:45 DEBUG RequestCancelTimer TimerID 2
+2022/05/04 22:26:45 DEBUG RequestCancelTimer TimerID 3
+ctx error canceled
+ctx error canceled
+ctx error canceled
+2022/05/04 22:26:45 result: expected error received: foo error
 ```
