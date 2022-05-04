@@ -90,7 +90,7 @@ I adapted the <code>x/sync/errgroup</code>. Here is the code:</p><div class=high
 </span></span><span style=display:flex><span>	env.<span style=color:#666;font-weight:700;font-style:italic>ExecuteWorkflow</span>(Workflow)
 </span></span><span style=display:flex><span>	err := env.<span style=color:#666;font-weight:700;font-style:italic>GetWorkflowError</span>()
 </span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> err != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		log.<span style=color:#666;font-weight:700;font-style:italic>Fatalf</span>(<span style=color:#666;font-style:italic>&#34;[ERROR] not expecting workflow: %v&#34;</span>, err)
+</span></span><span style=display:flex><span>		log.<span style=color:#666;font-weight:700;font-style:italic>Fatalf</span>(<span style=color:#666;font-style:italic>&#34;[ERROR] not expecting workflow error: %v&#34;</span>, err)
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>	<span style=font-weight:700;font-style:italic>var</span> result any
 </span></span><span style=display:flex><span>	err = env.<span style=color:#666;font-weight:700;font-style:italic>GetWorkflowResult</span>(&amp;result)
