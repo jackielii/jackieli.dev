@@ -14,16 +14,16 @@ package. Turns out it&rsquo;s harder than it looks.</p><p>Take <code>LocalDateTi
 same no matter which time zone you&rsquo;re in. The easiest thing is to just use
 string: <code>2020-07-25T01:02:03</code>. Note that there is no zone/offset information in
 the string</p><p>But if you want to use a <code>Date</code> object in javascript to represent it, it gets
-very tricky.</p><p>My first attempt is to just subtract the users&rsquo; zone offset like so:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=display:flex><span><span style=font-weight:700>const</span> offsetInMillis = <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Date</span>().getTimezoneOffset() * 60000 <span style=color:#888;font-style:italic>// minutes to ms
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>function</span> toLocalDatetime(date: <span style=font-weight:700>Date</span>|<span style=font-weight:700>number</span>): <span style=font-weight:700;font-style:italic>Date</span> {
-</span></span><span style=display:flex><span>  <span style=font-weight:700;font-style:italic>let</span> relativeTimestamp;
-</span></span><span style=display:flex><span>  <span style=font-weight:700>if</span> (date <span style=font-weight:700>instanceof</span> <span style=font-weight:700;font-style:italic>Date</span>) {
+very tricky.</p><p>My first attempt is to just subtract the users&rsquo; zone offset like so:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=display:flex><span><span style=font-weight:700>const</span> offsetInMillis = <span style=font-weight:700>new</span> Date().getTimezoneOffset() * 60000 <span style=font-style:italic>// minutes to ms
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>
+</span></span><span style=display:flex><span><span style=font-weight:700>function</span> toLocalDatetime(date: <span>Date</span>|<span>number</span>): Date {
+</span></span><span style=display:flex><span>  <span style=font-weight:700>let</span> relativeTimestamp;
+</span></span><span style=display:flex><span>  <span style=font-weight:700>if</span> (date <span style=font-weight:700>instanceof</span> Date) {
 </span></span><span style=display:flex><span>	relativeTimestamp = date.getTime() - offsetInMillis
 </span></span><span style=display:flex><span>  } <span style=font-weight:700>else</span> {
 </span></span><span style=display:flex><span>    relativeTimestamp = date - offsetInMillis
 </span></span><span style=display:flex><span>  }
-</span></span><span style=display:flex><span>  <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Date</span>(relativeTimestamp)
+</span></span><span style=display:flex><span>  <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Date(relativeTimestamp)
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>I thought naturally if you create a date from string without timezone, it would create it in the user&rsquo;s local timezone. But actually it&rsquo;s not, see <a href=https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse>MDN</a>.</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>❯ node
 </span></span><span style=display:flex><span>Welcome to Node.js v17.5.0.

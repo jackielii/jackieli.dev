@@ -32,68 +32,68 @@ the sidecar.</p><p>Well, it turns out it&rsquo;s still in the same
 documentation. We just need to 1) configure the filter on the gateway; 2) use
 <code>grpc-web</code> as the protocol in the service. (I believe <code>grpc</code> works just as
 well)</p><h2 id=the-solution>The solution
-<a class=heading-link href=#the-solution><i class="fa fa-link" aria-hidden=true></i></a></h2><p><code>gateway:443</code> -> <code>app</code> for both <code>grpc</code> & <code>grpc-web</code></p><p><strong>envoy filter</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span>apiVersion: networking.istio.io/v1alpha3
-</span></span><span style=display:flex><span>kind: EnvoyFilter
-</span></span><span style=display:flex><span>metadata:
-</span></span><span style=display:flex><span>  name: gateway-grpc-web-filter
-</span></span><span style=display:flex><span>  namespace: istio-system
-</span></span><span style=display:flex><span>spec:
-</span></span><span style=display:flex><span>  workloadSelector:
-</span></span><span style=display:flex><span>    labels:
-</span></span><span style=display:flex><span>      istio: ingressgateway
-</span></span><span style=display:flex><span>  configPatches:
-</span></span><span style=display:flex><span>    - applyTo: HTTP_FILTER
-</span></span><span style=display:flex><span>      match:
-</span></span><span style=display:flex><span>	  	<span style=color:#888;font-style:italic># importantly we&#39;re patching to the GATEWAY envoy, not sidecar</span>
-</span></span><span style=display:flex><span>        context: GATEWAY
-</span></span><span style=display:flex><span>        listener:
-</span></span><span style=display:flex><span>          filterChain:
-</span></span><span style=display:flex><span>            filter:
-</span></span><span style=display:flex><span>              name: <span style=color:#666;font-style:italic>&#34;envoy.filters.network.http_connection_manager&#34;</span>
-</span></span><span style=display:flex><span>              subFilter:
-</span></span><span style=display:flex><span>				<span style=color:#888;font-style:italic># apply the patch before the cors filter, just like the one in</span>
-</span></span><span style=display:flex><span>				<span style=color:#888;font-style:italic># grpc-web example</span>
-</span></span><span style=display:flex><span>                name: <span style=color:#666;font-style:italic>&#34;envoy.filters.http.cors&#34;</span>
-</span></span><span style=display:flex><span>      patch:
-</span></span><span style=display:flex><span>        operation: INSERT_BEFORE
-</span></span><span style=display:flex><span>        value:
-</span></span><span style=display:flex><span>          name: envoy.filters.http.grpc_web
-</span></span></code></pre></div><p><strong>virtual service</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span>apiVersion: networking.istio.io/v1alpha3
-</span></span><span style=display:flex><span>kind: VirtualService
-</span></span><span style=display:flex><span>metadata:
-</span></span><span style=display:flex><span>  name: hello-grpc
-</span></span><span style=display:flex><span>  namespace: default
-</span></span><span style=display:flex><span>spec:
-</span></span><span style=display:flex><span>  hosts:
-</span></span><span style=display:flex><span>    - <span style=color:#666;font-style:italic>&#34;*&#34;</span>
-</span></span><span style=display:flex><span>  gateways:
+<a class=heading-link href=#the-solution><i class="fa fa-link" aria-hidden=true></i></a></h2><p><code>gateway:443</code> -> <code>app</code> for both <code>grpc</code> & <code>grpc-web</code></p><p><strong>envoy filter</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: networking.istio.io/v1alpha3
+</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: EnvoyFilter
+</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: gateway-grpc-web-filter
+</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: istio-system
+</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>workloadSelector</span>:
+</span></span><span style=display:flex><span>    <span style=font-weight:700>labels</span>:
+</span></span><span style=display:flex><span>      <span style=font-weight:700>istio</span>: ingressgateway
+</span></span><span style=display:flex><span>  <span style=font-weight:700>configPatches</span>:
+</span></span><span style=display:flex><span>    - <span style=font-weight:700>applyTo</span>: HTTP_FILTER
+</span></span><span style=display:flex><span>      <span style=font-weight:700>match</span>:
+</span></span><span style=display:flex><span>	  	<span style=font-style:italic># importantly we&#39;re patching to the GATEWAY envoy, not sidecar</span>
+</span></span><span style=display:flex><span>        <span style=font-weight:700>context</span>: GATEWAY
+</span></span><span style=display:flex><span>        <span style=font-weight:700>listener</span>:
+</span></span><span style=display:flex><span>          <span style=font-weight:700>filterChain</span>:
+</span></span><span style=display:flex><span>            <span style=font-weight:700>filter</span>:
+</span></span><span style=display:flex><span>              <span style=font-weight:700>name</span>: <span style=font-style:italic>&#34;envoy.filters.network.http_connection_manager&#34;</span>
+</span></span><span style=display:flex><span>              <span style=font-weight:700>subFilter</span>:
+</span></span><span style=display:flex><span>				<span style=font-style:italic># apply the patch before the cors filter, just like the one in</span>
+</span></span><span style=display:flex><span>				<span style=font-style:italic># grpc-web example</span>
+</span></span><span style=display:flex><span>                <span style=font-weight:700>name</span>: <span style=font-style:italic>&#34;envoy.filters.http.cors&#34;</span>
+</span></span><span style=display:flex><span>      <span style=font-weight:700>patch</span>:
+</span></span><span style=display:flex><span>        <span style=font-weight:700>operation</span>: INSERT_BEFORE
+</span></span><span style=display:flex><span>        <span style=font-weight:700>value</span>:
+</span></span><span style=display:flex><span>          <span style=font-weight:700>name</span>: envoy.filters.http.grpc_web
+</span></span></code></pre></div><p><strong>virtual service</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: networking.istio.io/v1alpha3
+</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: VirtualService
+</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: hello-grpc
+</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: default
+</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>hosts</span>:
+</span></span><span style=display:flex><span>    - <span style=font-style:italic>&#34;*&#34;</span>
+</span></span><span style=display:flex><span>  <span style=font-weight:700>gateways</span>:
 </span></span><span style=display:flex><span>    - httpbin-gateway
-</span></span><span style=display:flex><span>  http:
-</span></span><span style=display:flex><span>    - route:
-</span></span><span style=display:flex><span>        - destination:
-</span></span><span style=display:flex><span>            host: hello-grpc
-</span></span><span style=display:flex><span>            port:
-</span></span><span style=display:flex><span>              number: 12345
-</span></span><span style=display:flex><span>      match:
-</span></span><span style=display:flex><span>        - uri:
-</span></span><span style=display:flex><span>            prefix: /main.HelloService/
+</span></span><span style=display:flex><span>  <span style=font-weight:700>http</span>:
+</span></span><span style=display:flex><span>    - <span style=font-weight:700>route</span>:
+</span></span><span style=display:flex><span>        - <span style=font-weight:700>destination</span>:
+</span></span><span style=display:flex><span>            <span style=font-weight:700>host</span>: hello-grpc
+</span></span><span style=display:flex><span>            <span style=font-weight:700>port</span>:
+</span></span><span style=display:flex><span>              <span style=font-weight:700>number</span>: 12345
+</span></span><span style=display:flex><span>      <span style=font-weight:700>match</span>:
+</span></span><span style=display:flex><span>        - <span style=font-weight:700>uri</span>:
+</span></span><span style=display:flex><span>            <span style=font-weight:700>prefix</span>: /main.HelloService/
 </span></span></code></pre></div><p>And importantly the service needs to have <code>grpc</code> in the service name or use
 <code>appProtocol</code>:
-<a href=https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection>ref</a></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span>apiVersion: v1
-</span></span><span style=display:flex><span>kind: Service
+<a href=https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection>ref</a></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: v1
+</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: Service
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>metadata:
-</span></span><span style=display:flex><span>  name: hello-grpc
-</span></span><span style=display:flex><span>  namespace: default
-</span></span><span style=display:flex><span>spec:
-</span></span><span style=display:flex><span>  selector:
-</span></span><span style=display:flex><span>    app: hello-grpc
-</span></span><span style=display:flex><span>  type: LoadBalancer
-</span></span><span style=display:flex><span>  ports:
-</span></span><span style=display:flex><span>    - name: grpc <span style=color:#888;font-style:italic># name has to start with grpc, alternatively use appProtocol below</span>
-</span></span><span style=display:flex><span>      port: 12345
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic># or use appProtocol for Kubernetes 1.18+</span>
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic># appProtocol: grpc</span>
+</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: hello-grpc
+</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: default
+</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
+</span></span><span style=display:flex><span>  <span style=font-weight:700>selector</span>:
+</span></span><span style=display:flex><span>    <span style=font-weight:700>app</span>: hello-grpc
+</span></span><span style=display:flex><span>  <span style=font-weight:700>type</span>: LoadBalancer
+</span></span><span style=display:flex><span>  <span style=font-weight:700>ports</span>:
+</span></span><span style=display:flex><span>    - <span style=font-weight:700>name</span>: grpc <span style=font-style:italic># name has to start with grpc, alternatively use appProtocol below</span>
+</span></span><span style=display:flex><span>      <span style=font-weight:700>port</span>: 12345
+</span></span><span style=display:flex><span>      <span style=font-style:italic># or use appProtocol for Kubernetes 1.18+</span>
+</span></span><span style=display:flex><span>      <span style=font-style:italic># appProtocol: grpc</span>
 </span></span></code></pre></div><p>Full example on <a href=https://github.com/jackieli-tes/learn-grpc-web-istio>github</a>.
 There are some useful debug commands that helped.</p></div><footer><script src=https://utteranc.es/client.js repo=jackielii/jackieli.dev issue-term=pathname label theme=github-light crossorigin=anonymous async></script></footer></article></section></div><footer class=footer><section class=container>©
 2019 -

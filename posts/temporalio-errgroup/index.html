@@ -11,95 +11,95 @@ coroutines when one of them returned error. I adapted the
 code:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=font-weight:700>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;errors&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;log&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;sync&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;time&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;errors&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;log&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;sync&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;time&#34;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;go.temporal.io/sdk/testsuite&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;go.temporal.io/sdk/workflow&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;go.temporal.io/sdk/testsuite&#34;</span>
+</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;go.temporal.io/sdk/workflow&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>Workflow</span>(ctx workflow.Context) (<span style=font-weight:700>string</span>, <span style=font-weight:700>error</span>) {
-</span></span><span style=display:flex><span>	g, cc := <span style=color:#666;font-weight:700;font-style:italic>withErrGroup</span>(ctx)
+</span></span><span style=display:flex><span><span style=font-weight:700>func</span> Workflow(ctx workflow.Context) (<span>string</span>, <span>error</span>) {
+</span></span><span style=display:flex><span>	g, cc := withErrGroup(ctx)
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>	<span style=font-weight:700>for</span> i := 0; i &lt; 3; i++ {
-</span></span><span style=display:flex><span>		g.<span style=color:#666;font-weight:700;font-style:italic>Go</span>(cc, <span style=font-weight:700;font-style:italic>func</span>(ctx workflow.Context) <span style=font-weight:700>error</span> {
-</span></span><span style=display:flex><span>			workflow.<span style=color:#666;font-weight:700;font-style:italic>Sleep</span>(ctx, 3*time.Second)
-</span></span><span style=display:flex><span>			<span style=font-weight:700>if</span> ctx.<span style=color:#666;font-weight:700;font-style:italic>Err</span>() != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>				<span style=font-weight:700;font-style:italic>println</span>(<span style=color:#666;font-style:italic>&#34;ctx error&#34;</span>, ctx.<span style=color:#666;font-weight:700;font-style:italic>Err</span>().<span style=color:#666;font-weight:700;font-style:italic>Error</span>())
+</span></span><span style=display:flex><span>		g.Go(cc, <span style=font-weight:700>func</span>(ctx workflow.Context) <span>error</span> {
+</span></span><span style=display:flex><span>			workflow.Sleep(ctx, 3*time.Second)
+</span></span><span style=display:flex><span>			<span style=font-weight:700>if</span> ctx.Err() != <span style=font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>				println(<span style=font-style:italic>&#34;ctx error&#34;</span>, ctx.Err().Error())
 </span></span><span style=display:flex><span>			} <span style=font-weight:700>else</span> {
-</span></span><span style=display:flex><span>				<span style=font-weight:700;font-style:italic>panic</span>(<span style=color:#666;font-style:italic>&#34;shouldn&#39;t be here&#34;</span>)
+</span></span><span style=display:flex><span>				panic(<span style=font-style:italic>&#34;shouldn&#39;t be here&#34;</span>)
 </span></span><span style=display:flex><span>			}
 </span></span><span style=display:flex><span>			<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
 </span></span><span style=display:flex><span>		})
 </span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	g.<span style=color:#666;font-weight:700;font-style:italic>Go</span>(cc, <span style=font-weight:700;font-style:italic>func</span>(ctx workflow.Context) <span style=font-weight:700>error</span> {
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> errors.<span style=color:#666;font-weight:700;font-style:italic>New</span>(<span style=color:#666;font-style:italic>&#34;foo error&#34;</span>)
+</span></span><span style=display:flex><span>	g.Go(cc, <span style=font-weight:700>func</span>(ctx workflow.Context) <span>error</span> {
+</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> errors.New(<span style=font-style:italic>&#34;foo error&#34;</span>)
 </span></span><span style=display:flex><span>	})
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	err := g.<span style=color:#666;font-weight:700;font-style:italic>Wait</span>(cc)
+</span></span><span style=display:flex><span>	err := g.Wait(cc)
 </span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> err == <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#34;&#34;</span>, errors.<span style=color:#666;font-weight:700;font-style:italic>New</span>(<span style=color:#666;font-style:italic>&#34;expected error&#34;</span>)
+</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> <span style=font-style:italic>&#34;&#34;</span>, errors.New(<span style=font-style:italic>&#34;expected error&#34;</span>)
 </span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#34;expected error received: &#34;</span> + err.<span style=color:#666;font-weight:700;font-style:italic>Error</span>(), <span style=font-weight:700>nil</span>
+</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> <span style=font-style:italic>&#34;expected error received: &#34;</span> + err.Error(), <span style=font-weight:700>nil</span>
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// adapted from https://cs.opensource.google/go/x/sync/+/036812b2:errgroup/errgroup.go
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>type</span> errGroup <span style=font-weight:700;font-style:italic>struct</span> {
+</span></span><span style=display:flex><span><span style=font-style:italic>// adapted from https://cs.opensource.google/go/x/sync/+/036812b2:errgroup/errgroup.go
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span><span style=font-weight:700>type</span> errGroup <span style=font-weight:700>struct</span> {
 </span></span><span style=display:flex><span>	wg      workflow.WaitGroup
-</span></span><span style=display:flex><span>	cancel  <span style=font-weight:700;font-style:italic>func</span>()
+</span></span><span style=display:flex><span>	cancel  <span style=font-weight:700>func</span>()
 </span></span><span style=display:flex><span>	errOnce sync.Once
-</span></span><span style=display:flex><span>	err     <span style=font-weight:700>error</span>
+</span></span><span style=display:flex><span>	err     <span>error</span>
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>withErrGroup</span>(ctx workflow.Context) (*errGroup, workflow.Context) {
-</span></span><span style=display:flex><span>	cc, cancel := workflow.<span style=color:#666;font-weight:700;font-style:italic>WithCancel</span>(ctx)
+</span></span><span style=display:flex><span><span style=font-weight:700>func</span> withErrGroup(ctx workflow.Context) (*errGroup, workflow.Context) {
+</span></span><span style=display:flex><span>	cc, cancel := workflow.WithCancel(ctx)
 </span></span><span style=display:flex><span>	eg := &amp;errGroup{
 </span></span><span style=display:flex><span>		cancel: cancel,
-</span></span><span style=display:flex><span>		wg:     workflow.<span style=color:#666;font-weight:700;font-style:italic>NewWaitGroup</span>(ctx),
+</span></span><span style=display:flex><span>		wg:     workflow.NewWaitGroup(ctx),
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> eg, cc
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>func</span> (g *errGroup) <span style=color:#666;font-weight:700;font-style:italic>Wait</span>(ctx workflow.Context) <span style=font-weight:700>error</span> {
-</span></span><span style=display:flex><span>	g.wg.<span style=color:#666;font-weight:700;font-style:italic>Wait</span>(ctx)
+</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (g *errGroup) Wait(ctx workflow.Context) <span>error</span> {
+</span></span><span style=display:flex><span>	g.wg.Wait(ctx)
 </span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> g.cancel != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		g.<span style=color:#666;font-weight:700;font-style:italic>cancel</span>()
+</span></span><span style=display:flex><span>		g.cancel()
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> g.err
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>func</span> (g *errGroup) <span style=color:#666;font-weight:700;font-style:italic>Go</span>(ctx workflow.Context, f <span style=font-weight:700;font-style:italic>func</span>(workflow.Context) <span style=font-weight:700>error</span>) {
-</span></span><span style=display:flex><span>	g.wg.<span style=color:#666;font-weight:700;font-style:italic>Add</span>(1)
-</span></span><span style=display:flex><span>	workflow.<span style=color:#666;font-weight:700;font-style:italic>Go</span>(ctx, <span style=font-weight:700;font-style:italic>func</span>(ctx workflow.Context) {
-</span></span><span style=display:flex><span>		<span style=font-weight:700>defer</span> g.wg.<span style=color:#666;font-weight:700;font-style:italic>Done</span>()
-</span></span><span style=display:flex><span>		<span style=font-weight:700>if</span> err := <span style=color:#666;font-weight:700;font-style:italic>f</span>(ctx); err != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>			g.errOnce.<span style=color:#666;font-weight:700;font-style:italic>Do</span>(<span style=font-weight:700;font-style:italic>func</span>() { <span style=color:#888;font-style:italic>// feels like errOnce is not needed
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>				g.err = err
+</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (g *errGroup) Go(ctx workflow.Context, f <span style=font-weight:700>func</span>(workflow.Context) <span>error</span>) {
+</span></span><span style=display:flex><span>	g.wg.Add(1)
+</span></span><span style=display:flex><span>	workflow.Go(ctx, <span style=font-weight:700>func</span>(ctx workflow.Context) {
+</span></span><span style=display:flex><span>		<span style=font-weight:700>defer</span> g.wg.Done()
+</span></span><span style=display:flex><span>		<span style=font-weight:700>if</span> err := f(ctx); err != <span style=font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			g.errOnce.Do(<span style=font-weight:700>func</span>() { <span style=font-style:italic>// feels like errOnce is not needed
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>				g.err = err
 </span></span><span style=display:flex><span>				<span style=font-weight:700>if</span> g.cancel != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>					g.<span style=color:#666;font-weight:700;font-style:italic>cancel</span>()
+</span></span><span style=display:flex><span>					g.cancel()
 </span></span><span style=display:flex><span>				}
 </span></span><span style=display:flex><span>			})
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>	})
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>main</span>() {
+</span></span><span style=display:flex><span><span style=font-weight:700>func</span> main() {
 </span></span><span style=display:flex><span>	s := &amp;testsuite.WorkflowTestSuite{}
-</span></span><span style=display:flex><span>	env := s.<span style=color:#666;font-weight:700;font-style:italic>NewTestWorkflowEnvironment</span>()
+</span></span><span style=display:flex><span>	env := s.NewTestWorkflowEnvironment()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	env.<span style=color:#666;font-weight:700;font-style:italic>ExecuteWorkflow</span>(Workflow)
-</span></span><span style=display:flex><span>	err := env.<span style=color:#666;font-weight:700;font-style:italic>GetWorkflowError</span>()
+</span></span><span style=display:flex><span>	env.ExecuteWorkflow(Workflow)
+</span></span><span style=display:flex><span>	err := env.GetWorkflowError()
 </span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> err != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		log.<span style=color:#666;font-weight:700;font-style:italic>Fatalf</span>(<span style=color:#666;font-style:italic>&#34;[ERROR] not expecting workflow error: %v&#34;</span>, err)
+</span></span><span style=display:flex><span>		log.Fatalf(<span style=font-style:italic>&#34;[ERROR] not expecting workflow error: %v&#34;</span>, err)
 </span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700;font-style:italic>var</span> result any
-</span></span><span style=display:flex><span>	err = env.<span style=color:#666;font-weight:700;font-style:italic>GetWorkflowResult</span>(&amp;result)
+</span></span><span style=display:flex><span>	<span style=font-weight:700>var</span> result any
+</span></span><span style=display:flex><span>	err = env.GetWorkflowResult(&amp;result)
 </span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> err != <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		log.<span style=color:#666;font-weight:700;font-style:italic>Fatalf</span>(<span style=color:#666;font-style:italic>&#34;[ERROR] failed to get workflow result: %v&#34;</span>, err)
+</span></span><span style=display:flex><span>		log.Fatalf(<span style=font-style:italic>&#34;[ERROR] failed to get workflow result: %v&#34;</span>, err)
 </span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	log.<span style=color:#666;font-weight:700;font-style:italic>Printf</span>(<span style=color:#666;font-style:italic>&#34;result: %v&#34;</span>, result)
+</span></span><span style=display:flex><span>	log.Printf(<span style=font-style:italic>&#34;result: %v&#34;</span>, result)
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><p>Result is:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>2022/05/04 22:26:45 DEBUG RequestCancelTimer TimerID 1
 </span></span><span style=display:flex><span>2022/05/04 22:26:45 DEBUG RequestCancelTimer TimerID 2

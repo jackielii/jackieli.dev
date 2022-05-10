@@ -21,19 +21,19 @@
 </span></span><span style=display:flex><span><span style=font-weight:700>const</span> big8 = BigInt(8)
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=font-weight:700>export</span> <span style=font-weight:700>class</span> BigDecimal {
-</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> big?: <span style=font-weight:700>bigint</span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> num?: <span style=font-weight:700>number</span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> isNumber: <span style=font-weight:700>boolean</span>
-</span></span><span style=display:flex><span>  scale: <span style=font-weight:700>number</span>
+</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> big?: <span>bigint</span>
+</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> num?: <span>number</span>
+</span></span><span style=display:flex><span>  <span style=font-weight:700>private</span> isNumber: <span>boolean</span>
+</span></span><span style=display:flex><span>  scale: <span>number</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>constructor</span>(int: <span style=font-weight:700>bigint</span> | <span style=font-weight:700>number</span>, scale?: <span style=font-weight:700>number</span>) {
+</span></span><span style=display:flex><span>  <span style=font-weight:700>constructor</span>(int: <span>bigint</span> | <span>number</span>, scale?: <span>number</span>) {
 </span></span><span style=display:flex><span>    <span style=font-weight:700>this</span>.isNumber = int &lt; TWO_POWER_31 &amp;&amp; int &gt;= -TWO_POWER_31
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (!<span style=font-weight:700>this</span>.isNumber) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>this</span>.big = BigInt(int)
 </span></span><span style=display:flex><span>    } <span style=font-weight:700>else</span> {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> n = <span style=font-weight:700;font-style:italic>Number</span>(int)
-</span></span><span style=display:flex><span>      <span style=font-weight:700>if</span> (<span style=font-weight:700;font-style:italic>Math</span>.floor(n) !== n) {
-</span></span><span style=display:flex><span>        <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>&#39;big decimal only accepts integer and scale&#39;</span>)
+</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> n = Number(int)
+</span></span><span style=display:flex><span>      <span style=font-weight:700>if</span> (Math.floor(n) !== n) {
+</span></span><span style=display:flex><span>        <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> Error(<span style=font-style:italic>&#39;big decimal only accepts integer and scale&#39;</span>)
 </span></span><span style=display:flex><span>      }
 </span></span><span style=display:flex><span>      <span style=font-weight:700>this</span>.num = n
 </span></span><span style=display:flex><span>    }
@@ -41,35 +41,35 @@
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>  bigToUint8Array() {
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>let</span> big: <span style=font-weight:700>bigint</span> = <span style=font-weight:700>this</span>.big!!
+</span></span><span style=display:flex><span>    <span style=font-weight:700>let</span> big: <span>bigint</span> = <span style=font-weight:700>this</span>.big!!
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (big &lt; big0) {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> bits: <span style=font-weight:700>bigint</span> = (BigInt(big.toString(2).length) / big8 + big1) * big8
-</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> prefix1: <span style=font-weight:700>bigint</span> = big1 &lt;&lt; bits
+</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> bits: <span>bigint</span> = (BigInt(big.toString(2).length) / big8 + big1) * big8
+</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> prefix1: <span>bigint</span> = big1 &lt;&lt; bits
 </span></span><span style=display:flex><span>      big += prefix1
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>let</span> hex = big.toString(16)
+</span></span><span style=display:flex><span>    <span style=font-weight:700>let</span> hex = big.toString(16)
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (hex.length % 2) {
-</span></span><span style=display:flex><span>      hex = <span style=color:#666;font-style:italic>&#39;0&#39;</span> + hex
-</span></span><span style=display:flex><span>    } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (hex[0] === <span style=color:#666;font-style:italic>&#39;8&#39;</span>) {
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic>// maximum positive need to prepend 0 otherwise resuts in negative number
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>      hex = <span style=color:#666;font-style:italic>&#39;00&#39;</span> + hex
+</span></span><span style=display:flex><span>      hex = <span style=font-style:italic>&#39;0&#39;</span> + hex
+</span></span><span style=display:flex><span>    } <span style=font-weight:700>else</span> <span style=font-weight:700>if</span> (hex[0] === <span style=font-style:italic>&#39;8&#39;</span>) {
+</span></span><span style=display:flex><span>      <span style=font-style:italic>// maximum positive need to prepend 0 otherwise resuts in negative number
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>      hex = <span style=font-style:italic>&#39;00&#39;</span> + hex
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> len = hex.length / 2
 </span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> u8 = <span style=font-weight:700>new</span> Uint8Array(len)
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>var</span> i = 0
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>var</span> j = 0
+</span></span><span style=display:flex><span>    <span style=font-weight:700>var</span> i = 0
+</span></span><span style=display:flex><span>    <span style=font-weight:700>var</span> j = 0
 </span></span><span style=display:flex><span>    <span style=font-weight:700>while</span> (i &lt; len) {
-</span></span><span style=display:flex><span>      u8[i] = <span style=font-weight:700;font-style:italic>parseInt</span>(hex.slice(j, j + 2), 16)
+</span></span><span style=display:flex><span>      u8[i] = parseInt(hex.slice(j, j + 2), 16)
 </span></span><span style=display:flex><span>      i += 1
 </span></span><span style=display:flex><span>      j += 2
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> u8
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  <span style=color:#888;font-style:italic>// positive save integer to array
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>  numToUint8Array(): Uint8Array {
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>let</span> n = <span style=font-weight:700>this</span>.num!!
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> arr: <span style=font-weight:700>number</span>[] = []
+</span></span><span style=display:flex><span>  <span style=font-style:italic>// positive save integer to array
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>  numToUint8Array(): Uint8Array {
+</span></span><span style=display:flex><span>    <span style=font-weight:700>let</span> n = <span style=font-weight:700>this</span>.num!!
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> arr: <span>number</span>[] = []
 </span></span><span style=display:flex><span>    <span style=font-weight:700>while</span> (<span style=font-weight:700>true</span>) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>if</span> (!n) {
 </span></span><span style=display:flex><span>        <span style=font-weight:700>break</span>
@@ -83,8 +83,8 @@
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (arr[0] &amp; 0x80) {
 </span></span><span style=display:flex><span>      arr.unshift(0)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#888;font-style:italic>// TODO: we could eliminate leading 1&#39;s e.g. 0xff80 == 0x80
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array(arr)
+</span></span><span style=display:flex><span>    <span style=font-style:italic>// TODO: we could eliminate leading 1&#39;s e.g. 0xff80 == 0x80
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> Uint8Array(arr)
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>  unscaledBytes(): Uint8Array {
@@ -98,16 +98,16 @@
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.bigToUint8Array()
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  getScale(): <span style=font-weight:700>number</span> {
+</span></span><span style=display:flex><span>  getScale(): <span>number</span> {
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.scale
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>  toString() {
-</span></span><span style=display:flex><span>    <span style=color:#888;font-style:italic>// TODO: should try to improve this
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// one idea is to put negative to the class. if we do this, we should
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// improve the bigInt parsing as well as parsing positive is easier than
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=color:#888;font-style:italic>// parsing 2s compliment integer
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700;font-style:italic>let</span> s: <span style=font-weight:700>string</span>
+</span></span><span style=display:flex><span>    <span style=font-style:italic>// TODO: should try to improve this
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-style:italic>// one idea is to put negative to the class. if we do this, we should
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-style:italic>// improve the bigInt parsing as well as parsing positive is easier than
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-style:italic>// parsing 2s compliment integer
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-weight:700>let</span> s: <span>string</span>
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.isNumber) {
 </span></span><span style=display:flex><span>      s = <span style=font-weight:700>this</span>.num!!.toString()
 </span></span><span style=display:flex><span>    } <span style=font-weight:700>else</span> {
@@ -116,21 +116,21 @@
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (!<span style=font-weight:700>this</span>.scale) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> s
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> negative = s.charAt(0) === <span style=color:#666;font-style:italic>&#39;-&#39;</span>
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> negative = s.charAt(0) === <span style=font-style:italic>&#39;-&#39;</span>
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (negative) {
 </span></span><span style=display:flex><span>      s = s.slice(1)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>this</span>.scale &gt; s.length) {
-</span></span><span style=display:flex><span>      s = s.padStart(<span style=font-weight:700>this</span>.scale, <span style=color:#666;font-style:italic>&#39;0&#39;</span>)
+</span></span><span style=display:flex><span>      s = s.padStart(<span style=font-weight:700>this</span>.scale, <span style=font-style:italic>&#39;0&#39;</span>)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>let</span> dot = s.length - <span style=font-weight:700>this</span>.scale
+</span></span><span style=display:flex><span>    <span style=font-weight:700>let</span> dot = s.length - <span style=font-weight:700>this</span>.scale
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (dot === 0) {
-</span></span><span style=display:flex><span>      s = <span style=color:#666;font-style:italic>&#39;0&#39;</span>.concat(s)
+</span></span><span style=display:flex><span>      s = <span style=font-style:italic>&#39;0&#39;</span>.concat(s)
 </span></span><span style=display:flex><span>      dot = 1
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    s = s.slice(0, dot).concat(<span style=color:#666;font-style:italic>&#39;.&#39;</span>).concat(s.slice(dot))
+</span></span><span style=display:flex><span>    s = s.slice(0, dot).concat(<span style=font-style:italic>&#39;.&#39;</span>).concat(s.slice(dot))
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (negative) {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> <span style=color:#666;font-style:italic>&#39;-&#39;</span>.concat(s)
+</span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> <span style=font-style:italic>&#39;-&#39;</span>.concat(s)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> s
 </span></span><span style=display:flex><span>  }
@@ -139,94 +139,94 @@
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.toString()
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  equals(other: <span style=font-weight:700>unknown</span>) {
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> n = <span style=font-weight:700>this</span>.isNumber ? <span style=font-weight:700>this</span>.num : <span style=font-weight:700>this.big</span>
+</span></span><span style=display:flex><span>  equals(other: <span>unknown</span>) {
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> n = <span style=font-weight:700>this</span>.isNumber ? <span style=font-weight:700>this</span>.num : <span>this.big</span>
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (other <span style=font-weight:700>instanceof</span> BigDecimal) {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> m = other.isNumber ? other.num : <span style=font-weight:700>other.big</span>
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic>// eslint-disable-next-line eqeqeq
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>      <span style=font-weight:700>return</span> m == n
+</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> m = other.isNumber ? other.num : <span>other.big</span>
+</span></span><span style=display:flex><span>      <span style=font-style:italic>// eslint-disable-next-line eqeqeq
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>      <span style=font-weight:700>return</span> m == n
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=color:#666;font-style:italic>&#39;number&#39;</span>) {
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic>// eslint-disable-next-line eqeqeq
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>      <span style=font-weight:700>return</span> n == other
+</span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=font-style:italic>&#39;number&#39;</span>) {
+</span></span><span style=display:flex><span>      <span style=font-style:italic>// eslint-disable-next-line eqeqeq
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>      <span style=font-weight:700>return</span> n == other
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=color:#666;font-style:italic>&#39;string&#39;</span>) {
+</span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (<span style=font-weight:700>typeof</span> other === <span style=font-style:italic>&#39;string&#39;</span>) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> <span style=font-weight:700>this</span>.toString() === other
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>false</span>
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>static</span> fromBytes(a: <span style=font-weight:700>Uint8Array</span>, scale?: <span style=font-weight:700>number</span>): BigDecimal {
+</span></span><span style=display:flex><span>  <span style=font-weight:700>static</span> fromBytes(a: <span>Uint8Array</span>, scale?: <span>number</span>): BigDecimal {
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (!a.length) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(0)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> hex = Buffer.<span style=font-weight:700>from</span>(a).toString(<span style=color:#666;font-style:italic>&#39;hex&#39;</span>)
-</span></span><span style=display:flex><span>    <span style=font-weight:700;font-style:italic>let</span> big = BigInt(<span style=color:#666;font-style:italic>&#39;0x&#39;</span> + hex)
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> hex = Buffer.<span style=font-weight:700>from</span>(a).toString(<span style=font-style:italic>&#39;hex&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=font-weight:700>let</span> big = BigInt(<span style=font-style:italic>&#39;0x&#39;</span> + hex)
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (a[0] &amp; 0x80) {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> negative = BigInt(<span style=color:#666;font-style:italic>&#39;0x1&#39;</span> + <span style=color:#666;font-style:italic>&#39;0&#39;</span>.repeat(hex.length))
+</span></span><span style=display:flex><span>      <span style=font-weight:700>const</span> negative = BigInt(<span style=font-style:italic>&#39;0x1&#39;</span> + <span style=font-style:italic>&#39;0&#39;</span>.repeat(hex.length))
 </span></span><span style=display:flex><span>      big -= negative
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(big, scale)
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>static</span> fromString(s: <span style=font-weight:700>string</span>): BigDecimal {
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> dot = s.indexOf(<span style=color:#666;font-style:italic>&#39;.&#39;</span>)
-</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> minus = s.indexOf(<span style=color:#666;font-style:italic>&#39;-&#39;</span>)
+</span></span><span style=display:flex><span>  <span style=font-weight:700>static</span> fromString(s: <span>string</span>): BigDecimal {
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> dot = s.indexOf(<span style=font-style:italic>&#39;.&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=font-weight:700>const</span> minus = s.indexOf(<span style=font-style:italic>&#39;-&#39;</span>)
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (dot === -1) {
 </span></span><span style=display:flex><span>      <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(BigInt(s), 0)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>if</span> (dot === s.length - 1) {
 </span></span><span style=display:flex><span>      s = s.slice(0, s.length - 1)
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>    <span style=color:#888;font-style:italic>// .-1234
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 0 &amp;&amp; minus === 1) {
-</span></span><span style=display:flex><span>      <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> <span style=font-weight:700;font-style:italic>Error</span>(<span style=color:#666;font-style:italic>&#39;invalid big decimal number&#39;</span>.concat(s))
+</span></span><span style=display:flex><span>    <span style=font-style:italic>// .-1234
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 0 &amp;&amp; minus === 1) {
+</span></span><span style=display:flex><span>      <span style=font-weight:700>throw</span> <span style=font-weight:700>new</span> Error(<span style=font-style:italic>&#39;invalid big decimal number&#39;</span>.concat(s))
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>    s = s.slice(0, dot).concat(s.slice(dot + 1))
-</span></span><span style=display:flex><span>    <span style=color:#888;font-style:italic>// -.1234 = -0.1234
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 1 &amp;&amp; minus === 0) {
-</span></span><span style=display:flex><span>      <span style=color:#888;font-style:italic>// TODO
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>    }
+</span></span><span style=display:flex><span>    <span style=font-style:italic>// -.1234 = -0.1234
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    <span style=font-weight:700>if</span> (dot === 1 &amp;&amp; minus === 0) {
+</span></span><span style=display:flex><span>      <span style=font-style:italic>// TODO
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>    }
 </span></span><span style=display:flex><span>    <span style=font-weight:700>return</span> <span style=font-weight:700>new</span> BigDecimal(BigInt(s), s.length - dot)
 </span></span><span style=display:flex><span>  }
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div><h2 id=go-implementation>Go implementation
-<a class=heading-link href=#go-implementation><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700;font-style:italic>var</span> one = big.<span style=color:#666;font-weight:700;font-style:italic>NewInt</span>(1)
+<a class=heading-link href=#go-implementation><i class="fa fa-link" aria-hidden=true></i></a></h2><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>var</span> one = big.NewInt(1)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// SetSignedBytes sets the value of n to the big-endian two&#39;s complement
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// value stored in the given data. If data[0]&amp;80 != 0, the number
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// is negative. If data is empty, the result will be 0.
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>SetSignedBytes</span>(n *big.Int, data []<span style=font-weight:700>byte</span>) {
-</span></span><span style=display:flex><span>	n.<span style=color:#666;font-weight:700;font-style:italic>SetBytes</span>(data)
-</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> <span style=font-weight:700;font-style:italic>len</span>(data) &gt; 0 &amp;&amp; data[0]&amp;0x80 &gt; 0 {
-</span></span><span style=display:flex><span>		n.<span style=color:#666;font-weight:700;font-style:italic>Sub</span>(n, <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Lsh</span>(one, <span style=font-weight:700;font-style:italic>uint</span>(<span style=font-weight:700;font-style:italic>len</span>(data))*8))
+</span></span><span style=display:flex><span><span style=font-style:italic>// SetSignedBytes sets the value of n to the big-endian two&#39;s complement
+</span></span></span><span style=display:flex><span><span style=font-style:italic>// value stored in the given data. If data[0]&amp;80 != 0, the number
+</span></span></span><span style=display:flex><span><span style=font-style:italic>// is negative. If data is empty, the result will be 0.
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span><span style=font-weight:700>func</span> SetSignedBytes(n *big.Int, data []<span>byte</span>) {
+</span></span><span style=display:flex><span>	n.SetBytes(data)
+</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> len(data) &gt; 0 &amp;&amp; data[0]&amp;0x80 &gt; 0 {
+</span></span><span style=display:flex><span>		n.Sub(n, new(big.Int).Lsh(one, uint(len(data))*8))
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// SignedBytes returns the big-endian two&#39;s complement
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic>// form of n.
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span><span style=font-weight:700;font-style:italic>func</span> <span style=color:#666;font-weight:700;font-style:italic>SignedBytes</span>(n *big.Int) []<span style=font-weight:700>byte</span> {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>switch</span> n.<span style=color:#666;font-weight:700;font-style:italic>Sign</span>() {
+</span></span><span style=display:flex><span><span style=font-style:italic>// SignedBytes returns the big-endian two&#39;s complement
+</span></span></span><span style=display:flex><span><span style=font-style:italic>// form of n.
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span><span style=font-weight:700>func</span> SignedBytes(n *big.Int) []<span>byte</span> {
+</span></span><span style=display:flex><span>	<span style=font-weight:700>switch</span> n.Sign() {
 </span></span><span style=display:flex><span>	<span style=font-weight:700>case</span> 0:
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> []<span style=font-weight:700>byte</span>{0}
+</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> []<span>byte</span>{0}
 </span></span><span style=display:flex><span>	<span style=font-weight:700>case</span> 1:
-</span></span><span style=display:flex><span>		b := n.<span style=color:#666;font-weight:700;font-style:italic>Bytes</span>()
+</span></span><span style=display:flex><span>		b := n.Bytes()
 </span></span><span style=display:flex><span>		<span style=font-weight:700>if</span> b[0]&amp;0x80 &gt; 0 {
-</span></span><span style=display:flex><span>			b = <span style=font-weight:700;font-style:italic>append</span>([]<span style=font-weight:700>byte</span>{0}, b...)
+</span></span><span style=display:flex><span>			b = append([]<span>byte</span>{0}, b...)
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> b
 </span></span><span style=display:flex><span>	<span style=font-weight:700>case</span> -1:
-</span></span><span style=display:flex><span>		length := <span style=font-weight:700;font-style:italic>uint</span>(n.<span style=color:#666;font-weight:700;font-style:italic>BitLen</span>()/8+1) * 8
-</span></span><span style=display:flex><span>		b := <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Add</span>(n, <span style=font-weight:700;font-style:italic>new</span>(big.Int).<span style=color:#666;font-weight:700;font-style:italic>Lsh</span>(one, length)).<span style=color:#666;font-weight:700;font-style:italic>Bytes</span>()
-</span></span><span style=display:flex><span>		<span style=color:#888;font-style:italic>// When the most significant bit is on a byte
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>		<span style=color:#888;font-style:italic>// boundary, we can get some extra significant
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>		<span style=color:#888;font-style:italic>// bits, so strip them off when that happens.
-</span></span></span><span style=display:flex><span><span style=color:#888;font-style:italic></span>		<span style=font-weight:700>if</span> <span style=font-weight:700;font-style:italic>len</span>(b) &gt;= 2 &amp;&amp; b[0] == 0xff &amp;&amp; b[1]&amp;0x80 != 0 {
+</span></span><span style=display:flex><span>		length := uint(n.BitLen()/8+1) * 8
+</span></span><span style=display:flex><span>		b := new(big.Int).Add(n, new(big.Int).Lsh(one, length)).Bytes()
+</span></span><span style=display:flex><span>		<span style=font-style:italic>// When the most significant bit is on a byte
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>		<span style=font-style:italic>// boundary, we can get some extra significant
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>		<span style=font-style:italic>// bits, so strip them off when that happens.
+</span></span></span><span style=display:flex><span><span style=font-style:italic></span>		<span style=font-weight:700>if</span> len(b) &gt;= 2 &amp;&amp; b[0] == 0xff &amp;&amp; b[1]&amp;0x80 != 0 {
 </span></span><span style=display:flex><span>			b = b[1:]
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> b
 </span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700;font-style:italic>panic</span>(<span style=color:#666;font-style:italic>&#34;unreachable&#34;</span>)
+</span></span><span style=display:flex><span>	panic(<span style=font-style:italic>&#34;unreachable&#34;</span>)
 </span></span><span style=display:flex><span>}
 </span></span></code></pre></div></div><footer><section class=see-also></section><script src=https://utteranc.es/client.js repo=jackielii/jackieli.dev issue-term=pathname label theme=github-light crossorigin=anonymous async></script></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
