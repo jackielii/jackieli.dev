@@ -4,9 +4,10 @@
 <time datetime=2022-05-04T21:11:24+01:00>4 May 2022</time></span>
 <span class=reading-time><i class="fa fa-clock-o" aria-hidden=true></i>
 2-minute read</span></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
-<span class=tag><a href=https://jackieli.dev/tags/temporal/>Temporal</a></span></div></div></header><div><p>Recently during develop a temporal workflow, I found I need an
-<a href=https://pkg.go.dev/golang.org/x/sync/errgroup><code>errGroup</code></a> implementation. So
-I adapted the <code>x/sync/errgroup</code>. Here is the code:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>package</span> main
+<span class=tag><a href=https://jackieli.dev/tags/temporal/>Temporal</a></span></div></div></header><div><p>Recently during develop a temporal workflow, I found I need an <code>errGroup</code>
+implementation. So I adapted the
+<a href=https://pkg.go.dev/golang.org/x/sync/errgroup><code>x/sync/errgroup</code></a>. Here is the
+code:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=font-weight:700>import</span> (
 </span></span><span style=display:flex><span>	<span style=color:#666;font-style:italic>&#34;errors&#34;</span>
