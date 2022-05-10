@@ -11,7 +11,8 @@ series = []
 +++
 
 Recently during develop a temporal workflow, I found I need an `errGroup`
-implementation. So I adapted the
+implementation - an easy way to synchronise the cancellation of all Temporal
+coroutines when one of them returned error. I adapted the
 [`x/sync/errgroup`](https://pkg.go.dev/golang.org/x/sync/errgroup). Here is the
 code:
 
