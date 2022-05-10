@@ -5,7 +5,8 @@
 <span class=reading-time><i class="fa fa-clock-o" aria-hidden=true></i>
 2-minute read</span></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
 <span class=tag><a href=https://jackieli.dev/tags/temporal/>Temporal</a></span></div></div></header><div><p>Recently during develop a temporal workflow, I found I need an <code>errGroup</code>
-implementation. So I adapted the
+implementation - an easy way to synchronise the cancellation of all Temporal
+coroutines when one of them returned error. I adapted the
 <a href=https://pkg.go.dev/golang.org/x/sync/errgroup><code>x/sync/errgroup</code></a>. Here is the
 code:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
