@@ -10,9 +10,10 @@ externalLink = ""
 series = []
 +++
 
-Recently during develop a temporal workflow, I found I need an
-[`errGroup`](https://pkg.go.dev/golang.org/x/sync/errgroup) implementation. So
-I adapted the `x/sync/errgroup`. Here is the code:
+Recently during develop a temporal workflow, I found I need an `errGroup`
+implementation. So I adapted the
+[`x/sync/errgroup`](https://pkg.go.dev/golang.org/x/sync/errgroup). Here is the
+code:
 
 ```
 package main
