@@ -1,8 +1,8 @@
-+++ 
++++
 date = 2021-06-26T12:40:10+01:00
 title = "Pointers in Go - used in sql.Scanner"
 description = "Golang sql.Scan without sql.NullString"
-slug = "pointers-in-go-used-in-sql-scanner" 
+slug = "pointers-in-go-used-in-sql-scanner"
 tags = ["go","pointers","sql"]
 categories = []
 +++
@@ -166,7 +166,7 @@ func (ts tsScanner) Scan(value interface{}) error {
 	return nil
 }
 
-// Value implements driver.Valuer for protobukkf Timestamp.
+// Value implements driver.Valuer for protobuf Timestamp.
 func (ts tsScanner) Value() (driver.Value, error) {
 	if ts.pt == nil || *ts.pt == nil {
 		return nil, nil
