@@ -45,7 +45,6 @@ nmap <silent> H :call search('\u[a-z]\+', 'b', line('.'))<CR>
 It uses `search` function so it doesn't add anything to your search register. I
 used `H` & `L`. It feels similiar to move left and right `h` & `l`, but faster.
 
-
 It's especially convenient because when I use this jump, I also want to query
 the documentation of such methods using `K`:
 
