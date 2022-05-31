@@ -39,7 +39,7 @@ this mapping:
 ```
 " L/H to move to the next/previous capital letter of a word
 nmap <silent> L :call search('\u[a-z]\*', '', line('.'))<CR>
-nmap <silent> H :call search('\u[a-z]\+', 'b', line('.'))<CR>
+nmap <silent> H :call search('\u[a-z]\*', 'b', line('.'))<CR>
 ```
 
 It uses `search` function so it doesn't add anything to your search register. I
