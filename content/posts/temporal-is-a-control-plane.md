@@ -47,7 +47,7 @@ However, one would quickly realise this would not work because all signals are r
 
 The problem here hits home with what @maxim stated: **Temporal should be the control plane, not data plane**. And yet we are piping all the rows through temporal. This obviously goes against what Temporal is designed for.
 
-So clearly, we need a data plane. But how would a data plane would fit in this picture?
+So clearly, we need a data plane, but how would a data plane fit in this picture?
 
 ## Our Approach
 
@@ -64,7 +64,7 @@ topicName := createTopic()
 // here we launch child workflow first so that we don't miss any message
 childFuture := workflow.ExecuteChildWorkflow(ctx, etlPipeline, topicName)
 
-// if we're emitting the rows in an activity, e.g. iterate through a database table:
+// Emit the rows in an activity, e.g. iterate through a database table:
 err := workflow.ExecuteActivity(ctx, rowsEmitter, topicName).Get(ctx, nil)
 ...
 ```
