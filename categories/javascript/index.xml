@@ -4,4 +4,4 @@ But if you want to use a Date object in javascript to represent it, it gets very
 Java&amp;rsquo;s implementation of the unscaledBytes returns signed big-endian bytes
 Javascript has BigInt support, but lacks of toBytes(), stuff around the internet all seems to handle positive numbers just fine, but fails in negative number implementation
 I borrowed from a Go implementation and adapted to javascript
-Javascript implementation (using Typescript) const TWO_POWER_31 = 2147483648 const big0 = BigInt(0) const big1 = BigInt(1) const big8 = BigInt(8) export class BigDecimal { private big?</description></item></channel></rss>
+Javascript implementation (using Typescript) Link to heading const TWO_POWER_31 = 2147483648 const big0 = BigInt(0) const big1 = BigInt(1) const big8 = BigInt(8) export class BigDecimal { private big?</description></item></channel></rss>

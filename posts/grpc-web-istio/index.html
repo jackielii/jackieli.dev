@@ -1,4 +1,4 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light dark"><meta name=author content="Jackie Li"><meta name=description content="Expose GRPC & GRPC-Web via One Port in Istio"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="GRPC & GRPC-Web multiplexed in Istio"><meta name=twitter:description content="Expose GRPC & GRPC-Web via One Port in Istio"><meta property="og:title" content="GRPC & GRPC-Web multiplexed in Istio"><meta property="og:description" content="Expose GRPC & GRPC-Web via One Port in Istio"><meta property="og:type" content="article"><meta property="og:url" content="https://jackieli.dev/posts/grpc-web-istio/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-03-25T15:55:25+00:00"><meta property="article:modified_time" content="2022-03-25T15:55:25+00:00"><title>GRPC & GRPC-Web multiplexed in Istio · jackieli.dev</title><link rel=canonical href=https://jackieli.dev/posts/grpc-web-istio/><link rel=preload href="https://jackieli.dev/fonts/forkawesome-webfont.woff2?v=1.2.0" as=font type=font/woff2 crossorigin><link rel=stylesheet href=https://jackieli.dev/css/coder.min.d9fddbffe6f27e69985dc5fe0471cdb0e57fbf4775714bc3d847accb08f4a1f6.css integrity="sha256-2f3b/+byfmmYXcX+BHHNsOV/v0d1cUvD2Eesywj0ofY=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://jackieli.dev/css/coder-dark.min.002ee2378e14c7a68f1f0a53d9694ed252090987c4e768023fac694a4fc5f793.css integrity="sha256-AC7iN44Ux6aPHwpT2WlO0lIJCYfE52gCP6xpSk/F95M=" crossorigin=anonymous media=screen><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=https://jackieli.dev/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=https://jackieli.dev/images/apple-touch-icon.png><meta name=generator content="Hugo 0.111.3"></head><body class="preload-transitions colorscheme-auto"><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://jackieli.dev/>jackieli.dev</a>
+<!doctype html><html lang=en><head><title>GRPC & GRPC-Web multiplexed in Istio · jackieli.dev</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light dark"><meta name=author content="Jackie Li"><meta name=description content="Expose GRPC & GRPC-Web via One Port in Istio"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="GRPC & GRPC-Web multiplexed in Istio"><meta name=twitter:description content="Expose GRPC & GRPC-Web via One Port in Istio"><meta property="og:title" content="GRPC & GRPC-Web multiplexed in Istio"><meta property="og:description" content="Expose GRPC & GRPC-Web via One Port in Istio"><meta property="og:type" content="article"><meta property="og:url" content="https://jackieli.dev/posts/grpc-web-istio/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-03-25T15:55:25+00:00"><meta property="article:modified_time" content="2022-03-25T15:55:25+00:00"><link rel=canonical href=https://jackieli.dev/posts/grpc-web-istio/><link rel=preload href="https://jackieli.dev/fonts/forkawesome-webfont.woff2?v=1.2.0" as=font type=font/woff2 crossorigin><link rel=stylesheet href=https://jackieli.dev/css/coder.min.d9fddbffe6f27e69985dc5fe0471cdb0e57fbf4775714bc3d847accb08f4a1f6.css integrity="sha256-2f3b/+byfmmYXcX+BHHNsOV/v0d1cUvD2Eesywj0ofY=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://jackieli.dev/css/coder-dark.min.002ee2378e14c7a68f1f0a53d9694ed252090987c4e768023fac694a4fc5f793.css integrity="sha256-AC7iN44Ux6aPHwpT2WlO0lIJCYfE52gCP6xpSk/F95M=" crossorigin=anonymous media=screen><link rel=icon type=image/svg+xml href=https://jackieli.dev/images/favicon.svg sizes=any><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=https://jackieli.dev/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=https://jackieli.dev/images/apple-touch-icon.png><link rel=manifest href=https://jackieli.dev/site.webmanifest><link rel=mask-icon href=https://jackieli.dev/images/safari-pinned-tab.svg color=#5bbad5></head><body class="preload-transitions colorscheme-auto"><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://jackieli.dev/>jackieli.dev</a>
 <input type=checkbox id=menu-toggle>
 <label class="menu-button float-right" for=menu-toggle><i class="fa fa-bars fa-fw" aria-hidden=true></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://jackieli.dev/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://jackieli.dev/posts/>Posts</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title><a class=title-link href=https://jackieli.dev/posts/grpc-web-istio/>GRPC & GRPC-Web multiplexed in Istio</a></h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fa fa-calendar" aria-hidden=true></i>
 <time datetime=2022-03-25T15:55:25Z>25 Mar 2022</time></span>
@@ -7,9 +7,9 @@
 <a href=https://jackieli.dev/categories/grpc-web/>gRPC-Web</a></div><div class=tags><i class="fa fa-tag" aria-hidden=true></i>
 <span class=tag><a href=https://jackieli.dev/tags/istio/>istio</a></span>
 <span class=separator>•</span>
-<span class=tag><a href=https://jackieli.dev/tags/kubernetes/>kubernetes</a></span></div></div></header><div><p>Envoy had grpc-web support ealy on. It&rsquo;s used in the official grpc-web
-<a href=https://github.com/grpc/grpc-web#2-run-the-server-and-proxy>tutorial docs</a>.
-In the <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml>envoy
+<span class=tag><a href=https://jackieli.dev/tags/kubernetes/>kubernetes</a></span></div></div></header><div class=post-content><p>Envoy had grpc-web support ealy on. It&rsquo;s used in the official grpc-web
+<a href=https://github.com/grpc/grpc-web#2-run-the-server-and-proxy class=external-link target=_blank rel=noopener>tutorial docs</a>.
+In the <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml class=external-link target=_blank rel=noopener>envoy
 config</a>
 of this tutorial, both grpc & grpcWeb are exposed via a single <code>listener</code> port.
 This is nice model when you have a production deployment in which some clients
@@ -25,80 +25,81 @@ GRPC-Web: wasted resources when we don&rsquo;t need service mesh</li></ol><p>Thi
 does it feels so difficult on Istio&rsquo;s side?</p><p>I finally sat down today and look at this from scratch: We have an effective
 envoy config, so we just need to configure istio such that the gateway envoy of
 istio has the most important elements that supports both GRPC & GRPC-Web.
-Namely:</p><ol><li>on the listener config we need the filter <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml#L38>envoy.filters.http.grpc_web</a></li><li>on the clusters config we need the <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml#L45>http2_protocol_options</a></li></ol><p>And we definitely don&rsquo;t need the sidecar for this: sidecar is for east-west
+Namely:</p><ol><li>on the listener config we need the filter <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml#L38 class=external-link target=_blank rel=noopener>envoy.filters.http.grpc_web</a></li><li>on the clusters config we need the <a href=https://github.com/grpc/grpc-web/blob/8c5502186445e35002697f4bd8d1b820abdbed5d/net/grpc/gateway/examples/echo/envoy.yaml#L45 class=external-link target=_blank rel=noopener>http2_protocol_options</a></li></ol><p>And we definitely don&rsquo;t need the sidecar for this: sidecar is for east-west
 traffic, not north-south traffic. So the filter needs to be on the gateway, not
 the sidecar.</p><p>Well, it turns out it&rsquo;s still in the same
-<a href=https://istio.io/latest/docs/reference/config/networking/envoy-filter/>EnvoyFilter</a>
+<a href=https://istio.io/latest/docs/reference/config/networking/envoy-filter/ class=external-link target=_blank rel=noopener>EnvoyFilter</a>
 documentation. We just need to 1) configure the filter on the gateway; 2) use
 <code>grpc-web</code> as the protocol in the service. (I believe <code>grpc</code> works just as
 well)</p><h2 id=the-solution>The solution
-<a class=heading-link href=#the-solution><i class="fa fa-link" aria-hidden=true></i></a></h2><p><code>gateway:443</code> -> <code>app</code> for both <code>grpc</code> & <code>grpc-web</code></p><p><strong>envoy filter</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: networking.istio.io/v1alpha3
-</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: EnvoyFilter
-</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: gateway-grpc-web-filter
-</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: istio-system
-</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>workloadSelector</span>:
-</span></span><span style=display:flex><span>    <span style=font-weight:700>labels</span>:
-</span></span><span style=display:flex><span>      <span style=font-weight:700>istio</span>: ingressgateway
-</span></span><span style=display:flex><span>  <span style=font-weight:700>configPatches</span>:
-</span></span><span style=display:flex><span>    - <span style=font-weight:700>applyTo</span>: HTTP_FILTER
-</span></span><span style=display:flex><span>      <span style=font-weight:700>match</span>:
-</span></span><span style=display:flex><span>	  	<span style=font-style:italic># importantly we&#39;re patching to the GATEWAY envoy, not sidecar</span>
-</span></span><span style=display:flex><span>        <span style=font-weight:700>context</span>: GATEWAY
-</span></span><span style=display:flex><span>        <span style=font-weight:700>listener</span>:
-</span></span><span style=display:flex><span>          <span style=font-weight:700>filterChain</span>:
-</span></span><span style=display:flex><span>            <span style=font-weight:700>filter</span>:
-</span></span><span style=display:flex><span>              <span style=font-weight:700>name</span>: <span style=font-style:italic>&#34;envoy.filters.network.http_connection_manager&#34;</span>
-</span></span><span style=display:flex><span>              <span style=font-weight:700>subFilter</span>:
-</span></span><span style=display:flex><span>				<span style=font-style:italic># apply the patch before the cors filter, just like the one in</span>
-</span></span><span style=display:flex><span>				<span style=font-style:italic># grpc-web example</span>
-</span></span><span style=display:flex><span>                <span style=font-weight:700>name</span>: <span style=font-style:italic>&#34;envoy.filters.http.cors&#34;</span>
-</span></span><span style=display:flex><span>      <span style=font-weight:700>patch</span>:
-</span></span><span style=display:flex><span>        <span style=font-weight:700>operation</span>: INSERT_BEFORE
-</span></span><span style=display:flex><span>        <span style=font-weight:700>value</span>:
-</span></span><span style=display:flex><span>          <span style=font-weight:700>name</span>: envoy.filters.http.grpc_web
-</span></span></code></pre></div><p><strong>virtual service</strong></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: networking.istio.io/v1alpha3
-</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: VirtualService
-</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: hello-grpc
-</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: default
-</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>hosts</span>:
-</span></span><span style=display:flex><span>    - <span style=font-style:italic>&#34;*&#34;</span>
-</span></span><span style=display:flex><span>  <span style=font-weight:700>gateways</span>:
-</span></span><span style=display:flex><span>    - httpbin-gateway
-</span></span><span style=display:flex><span>  <span style=font-weight:700>http</span>:
-</span></span><span style=display:flex><span>    - <span style=font-weight:700>route</span>:
-</span></span><span style=display:flex><span>        - <span style=font-weight:700>destination</span>:
-</span></span><span style=display:flex><span>            <span style=font-weight:700>host</span>: hello-grpc
-</span></span><span style=display:flex><span>            <span style=font-weight:700>port</span>:
-</span></span><span style=display:flex><span>              <span style=font-weight:700>number</span>: 12345
-</span></span><span style=display:flex><span>      <span style=font-weight:700>match</span>:
-</span></span><span style=display:flex><span>        - <span style=font-weight:700>uri</span>:
-</span></span><span style=display:flex><span>            <span style=font-weight:700>prefix</span>: /main.HelloService/
-</span></span></code></pre></div><p>And importantly the service needs to have <code>grpc</code> in the service name or use
+<a class=heading-link href=#the-solution><i class="fa fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h2><p><code>gateway:443</code> -> <code>app</code> for both <code>grpc</code> & <code>grpc-web</code></p><p><strong>envoy filter</strong></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.istio.io/v1alpha3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>EnvoyFilter</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>gateway-grpc-web-filter</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>istio-system</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>workloadSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>istio</span><span class=p>:</span><span class=w> </span><span class=l>ingressgateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>configPatches</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>applyTo</span><span class=p>:</span><span class=w> </span><span class=l>HTTP_FILTER</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>match</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	  	</span><span class=c># importantly we&#39;re patching to the GATEWAY envoy, not sidecar</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>context</span><span class=p>:</span><span class=w> </span><span class=l>GATEWAY</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>listener</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>filterChain</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>filter</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;envoy.filters.network.http_connection_manager&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>subFilter</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c># apply the patch before the cors filter, just like the one in</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c># grpc-web example</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s2>&#34;envoy.filters.http.cors&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>patch</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>operation</span><span class=p>:</span><span class=w> </span><span class=l>INSERT_BEFORE</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>value</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>envoy.filters.http.grpc_web</span><span class=w>
+</span></span></span></code></pre></div><p><strong>virtual service</strong></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.istio.io/v1alpha3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>VirtualService</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>hello-grpc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>default</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=s2>&#34;*&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>gateways</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>httpbin-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>route</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>destination</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>hello-grpc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>12345</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>match</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>uri</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>prefix</span><span class=p>:</span><span class=w> </span><span class=l>/main.HelloService/</span><span class=w>
+</span></span></span></code></pre></div><p>And importantly the service needs to have <code>grpc</code> in the service name or use
 <code>appProtocol</code>:
-<a href=https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection>ref</a></p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=font-weight:700>apiVersion</span>: v1
-</span></span><span style=display:flex><span><span style=font-weight:700>kind</span>: Service
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>metadata</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>name</span>: hello-grpc
-</span></span><span style=display:flex><span>  <span style=font-weight:700>namespace</span>: default
-</span></span><span style=display:flex><span><span style=font-weight:700>spec</span>:
-</span></span><span style=display:flex><span>  <span style=font-weight:700>selector</span>:
-</span></span><span style=display:flex><span>    <span style=font-weight:700>app</span>: hello-grpc
-</span></span><span style=display:flex><span>  <span style=font-weight:700>type</span>: LoadBalancer
-</span></span><span style=display:flex><span>  <span style=font-weight:700>ports</span>:
-</span></span><span style=display:flex><span>    - <span style=font-weight:700>name</span>: grpc <span style=font-style:italic># name has to start with grpc, alternatively use appProtocol below</span>
-</span></span><span style=display:flex><span>      <span style=font-weight:700>port</span>: 12345
-</span></span><span style=display:flex><span>      <span style=font-style:italic># or use appProtocol for Kubernetes 1.18+</span>
-</span></span><span style=display:flex><span>      <span style=font-style:italic># appProtocol: grpc</span>
-</span></span></code></pre></div><p>Full example on <a href=https://github.com/jackieli-tes/learn-grpc-web-istio>github</a>.
-There are some useful debug commands that helped.</p></div><footer><script src=https://utteranc.es/client.js repo=jackielii/jackieli.dev issue-term=pathname label theme=github-light crossorigin=anonymous async></script></footer></article></section></div><footer class=footer><section class=container>©
+<a href=https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection class=external-link target=_blank rel=noopener>ref</a></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>hello-grpc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>default</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>hello-grpc</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>LoadBalancer</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>grpc</span><span class=w> </span><span class=c># name has to start with grpc, alternatively use appProtocol below</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>12345</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=c># or use appProtocol for Kubernetes 1.18+</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=c># appProtocol: grpc</span><span class=w>
+</span></span></span></code></pre></div><p>Full example on <a href=https://github.com/jackieli-tes/learn-grpc-web-istio class=external-link target=_blank rel=noopener>github</a>.
+There are some useful debug commands that helped.</p></div><footer><div class=comments><script>let getTheme=window.localStorage&&window.localStorage.getItem("colorscheme");getTheme=getTheme??"preferred_color_scheme";let s=document.createElement("script");s.src="https://giscus.app/client.js",s.setAttribute("data-repo","jackielii/jackieli.dev"),s.setAttribute("data-repo-id","MDEwOlJlcG9zaXRvcnkyNzM3MjUxODQ="),s.setAttribute("data-category","General"),s.setAttribute("data-category-id","MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMzMDU5OTk0"),s.setAttribute("data-mapping","pathname"),s.setAttribute("data-term",""),s.setAttribute("data-strict","0"),s.setAttribute("data-reactions-enabled","1"),s.setAttribute("data-emit-metadata","0"),s.setAttribute("data-input-position","bottom"),s.setAttribute("data-theme",getTheme),s.setAttribute("data-lang","en"),s.setAttribute("data-loading",""),s.setAttribute("crossorigin","anonymous"),s.setAttribute("async",""),document.querySelector("div.comments").innerHTML="",document.querySelector("div.comments").appendChild(s)</script></div></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2023
 Jackie Li
 ·
-Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main><script src=https://jackieli.dev/js/coder.min.9cf2dbf9b6989ef8eae941ffb4231c26d1dc026bca38f1d19fdba50177d8a9ac.js integrity="sha256-nPLb+baYnvjq6UH/tCMcJtHcAmvKOPHRn9ulAXfYqaw="></script>
+Powered by <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/ target=_blank rel=noopener>Coder</a>.</section></footer></main><script src=https://jackieli.dev/js/coder.min.6ae284be93d2d19dad1f02b0039508d9aab3180a12a06dcc71b0b0ef7825a317.js integrity="sha256-auKEvpPS0Z2tHwKwA5UI2aqzGAoSoG3McbCw73gloxc="></script>
 <script type=application/javascript>var doNotTrack=!1;doNotTrack||(function(e,t,n,s,o,i,a){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,i=t.createElement(n),a=t.getElementsByTagName(n)[0],i.async=1,i.src=s,a.parentNode.insertBefore(i,a)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-173573373-1","auto"),ga("send","pageview"))</script></body></html>

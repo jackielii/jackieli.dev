@@ -1,4 +1,4 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light dark"><meta name=author content="Jackie Li"><meta name=description content="Golang sql.Scan without sql.NullString"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="Pointers in Go - used in sql.Scanner"><meta name=twitter:description content="Golang sql.Scan without sql.NullString"><meta property="og:title" content="Pointers in Go - used in sql.Scanner"><meta property="og:description" content="Golang sql.Scan without sql.NullString"><meta property="og:type" content="article"><meta property="og:url" content="https://jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-26T12:40:10+01:00"><meta property="article:modified_time" content="2021-06-26T12:40:10+01:00"><title>Pointers in Go - used in sql.Scanner · jackieli.dev</title><link rel=canonical href=https://jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/><link rel=preload href="https://jackieli.dev/fonts/forkawesome-webfont.woff2?v=1.2.0" as=font type=font/woff2 crossorigin><link rel=stylesheet href=https://jackieli.dev/css/coder.min.d9fddbffe6f27e69985dc5fe0471cdb0e57fbf4775714bc3d847accb08f4a1f6.css integrity="sha256-2f3b/+byfmmYXcX+BHHNsOV/v0d1cUvD2Eesywj0ofY=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://jackieli.dev/css/coder-dark.min.002ee2378e14c7a68f1f0a53d9694ed252090987c4e768023fac694a4fc5f793.css integrity="sha256-AC7iN44Ux6aPHwpT2WlO0lIJCYfE52gCP6xpSk/F95M=" crossorigin=anonymous media=screen><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=https://jackieli.dev/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=https://jackieli.dev/images/apple-touch-icon.png><meta name=generator content="Hugo 0.111.3"></head><body class="preload-transitions colorscheme-auto"><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://jackieli.dev/>jackieli.dev</a>
+<!doctype html><html lang=en><head><title>Pointers in Go - used in sql.Scanner · jackieli.dev</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=color-scheme content="light dark"><meta name=author content="Jackie Li"><meta name=description content="Golang sql.Scan without sql.NullString"><meta name=keywords content="blog,developer,personal"><meta name=twitter:card content="summary"><meta name=twitter:title content="Pointers in Go - used in sql.Scanner"><meta name=twitter:description content="Golang sql.Scan without sql.NullString"><meta property="og:title" content="Pointers in Go - used in sql.Scanner"><meta property="og:description" content="Golang sql.Scan without sql.NullString"><meta property="og:type" content="article"><meta property="og:url" content="https://jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-26T12:40:10+01:00"><meta property="article:modified_time" content="2021-06-26T12:40:10+01:00"><link rel=canonical href=https://jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/><link rel=preload href="https://jackieli.dev/fonts/forkawesome-webfont.woff2?v=1.2.0" as=font type=font/woff2 crossorigin><link rel=stylesheet href=https://jackieli.dev/css/coder.min.d9fddbffe6f27e69985dc5fe0471cdb0e57fbf4775714bc3d847accb08f4a1f6.css integrity="sha256-2f3b/+byfmmYXcX+BHHNsOV/v0d1cUvD2Eesywj0ofY=" crossorigin=anonymous media=screen><link rel=stylesheet href=https://jackieli.dev/css/coder-dark.min.002ee2378e14c7a68f1f0a53d9694ed252090987c4e768023fac694a4fc5f793.css integrity="sha256-AC7iN44Ux6aPHwpT2WlO0lIJCYfE52gCP6xpSk/F95M=" crossorigin=anonymous media=screen><link rel=icon type=image/svg+xml href=https://jackieli.dev/images/favicon.svg sizes=any><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-32x32.png sizes=32x32><link rel=icon type=image/png href=https://jackieli.dev/images/favicon-16x16.png sizes=16x16><link rel=apple-touch-icon href=https://jackieli.dev/images/apple-touch-icon.png><link rel=apple-touch-icon sizes=180x180 href=https://jackieli.dev/images/apple-touch-icon.png><link rel=manifest href=https://jackieli.dev/site.webmanifest><link rel=mask-icon href=https://jackieli.dev/images/safari-pinned-tab.svg color=#5bbad5></head><body class="preload-transitions colorscheme-auto"><div class=float-container><a id=dark-mode-toggle class=colorscheme-toggle><i class="fa fa-adjust fa-fw" aria-hidden=true></i></a></div><main class=wrapper><nav class=navigation><section class=container><a class=navigation-title href=https://jackieli.dev/>jackieli.dev</a>
 <input type=checkbox id=menu-toggle>
 <label class="menu-button float-right" for=menu-toggle><i class="fa fa-bars fa-fw" aria-hidden=true></i></label><ul class=navigation-list><li class=navigation-item><a class=navigation-link href=https://jackieli.dev/about/>About</a></li><li class=navigation-item><a class=navigation-link href=https://jackieli.dev/posts/>Posts</a></li></ul></section></nav><div class=content><section class="container post"><article><header><div class=post-title><h1 class=title><a class=title-link href=https://jackieli.dev/posts/pointers-in-go-used-in-sql-scanner/>Pointers in Go - used in sql.Scanner</a></h1></div><div class=post-meta><div class=date><span class=posted-on><i class="fa fa-calendar" aria-hidden=true></i>
 <time datetime=2021-06-26T12:40:10+01:00>26 Jun 2021</time></span>
@@ -8,139 +8,141 @@
 <span class=separator>•</span>
 <span class=tag><a href=https://jackieli.dev/tags/pointers/>pointers</a></span>
 <span class=separator>•</span>
-<span class=tag><a href=https://jackieli.dev/tags/sql/>sql</a></span></div></div></header><div><p>Firstly a fun fact a lot people don&rsquo;t know: when passing values between
+<span class=tag><a href=https://jackieli.dev/tags/sql/>sql</a></span></div></div></header><div class=post-content><p>Firstly a fun fact a lot people don&rsquo;t know: when passing values between
 functions, it&rsquo;s cheaper to pass values instead of pointers in Go. Reason is
 pointers to objects <em>could</em> be allocated on heap and it takes the computer more
 efforts to managed heap memory. While values are save on the stack, and stack
-is cheaper. For example, it&rsquo;s preferable to:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>type</span> Foo <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	Bar <span>string</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (f Foo) Echo() {
-</span></span><span style=display:flex><span>	println(f.Bar)
-</span></span><span style=display:flex><span>}
+is cheaper. For example, it&rsquo;s preferable to:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Foo</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>Bar</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>f</span> <span class=nx>Foo</span><span class=p>)</span> <span class=nf>Echo</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nb>println</span><span class=p>(</span><span class=nx>f</span><span class=p>.</span><span class=nx>Bar</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span></code></pre></div><p>In above example, <code>Echo</code> method will not change the value of Foo, so there is
 no need to have the method receiver as a pointer.</p><p>Obviously Go compiler has gotten cleverer over the years and will do a lot more
 escape analysis to determine if a pointer to struct can be allocated only on
 stack. But I think it&rsquo;s still a good practice to use value instead of pointers
 whenever you can.</p><p>Now here is a subtle bug that if used the value receive pattern incorrectly,
 can be tricky to track down. It certainly cost me quite some time a while ago
-and still bites me from time to time. Consider this example:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>package</span> main
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>type</span> Bar <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	Baz <span>string</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (b *Bar) Update() {
-</span></span><span style=display:flex><span>	b.Baz = <span style=font-style:italic>&#34;hello bar&#34;</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>type</span> Foo <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	Bar Bar
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (f Foo) UpdateBar() {
-</span></span><span style=display:flex><span>	f.Bar.Update()
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> main() {
-</span></span><span style=display:flex><span>	bar := Bar{Baz: <span style=font-style:italic>&#34;doom&#34;</span>}
-</span></span><span style=display:flex><span>	foo := Foo{
-</span></span><span style=display:flex><span>		Bar: bar,
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	foo.UpdateBar()
-</span></span><span style=display:flex><span>	println(bar.Baz)
-</span></span><span style=display:flex><span>}
+and still bites me from time to time. Consider this example:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>package</span> <span class=nx>main</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Bar</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>Baz</span> <span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>b</span> <span class=o>*</span><span class=nx>Bar</span><span class=p>)</span> <span class=nf>Update</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>b</span><span class=p>.</span><span class=nx>Baz</span> <span class=p>=</span> <span class=s>&#34;hello bar&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Foo</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>Bar</span> <span class=nx>Bar</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>f</span> <span class=nx>Foo</span><span class=p>)</span> <span class=nf>UpdateBar</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>f</span><span class=p>.</span><span class=nx>Bar</span><span class=p>.</span><span class=nf>Update</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>bar</span> <span class=o>:=</span> <span class=nx>Bar</span><span class=p>{</span><span class=nx>Baz</span><span class=p>:</span> <span class=s>&#34;doom&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>foo</span> <span class=o>:=</span> <span class=nx>Foo</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=nx>Bar</span><span class=p>:</span> <span class=nx>bar</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=nx>foo</span><span class=p>.</span><span class=nf>UpdateBar</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>	<span class=nb>println</span><span class=p>(</span><span class=nx>bar</span><span class=p>.</span><span class=nx>Baz</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span></code></pre></div><p>It&rsquo;ll print <code>doom</code> not <code>hello bar</code>. It&rsquo;s easy to see why in this simple
 program, but when it&rsquo;s nested in structs, it could be a very long debugging
 process.</p><div class="notice note"><div class=notice-title><i class="fa fa-sticky-note" aria-hidden=true></i>Note</div><div class=notice-content>If you embed a sync.Mutex in a struct and you attempt to use a value receiver,
 go vet will warn you about it. Try running <code>go tool vet help copylocks</code></div></div><p>The main trick I want to share today probably seems very normal to any C or C++
 programmers. But it is very useful in practice.</p><h3 id=the-problem>The problem
-<a class=heading-link href=#the-problem><i class="fa fa-link" aria-hidden=true></i></a></h3><p>I have a proto generated struct or some struct that I don&rsquo;t own and I need to
-use it directly in sql scan. i.e. given the following struct:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>type</span> Node <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	ID 			<span>int</span>
-</span></span><span style=display:flex><span>	Name 		<span>string</span>
-</span></span><span style=display:flex><span>	CreatedAt 	timestamppb.Timestamp
-</span></span><span style=display:flex><span>}
+<a class=heading-link href=#the-problem><i class="fa fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h3><p>I have a proto generated struct or some struct that I don&rsquo;t own and I need to
+use it directly in sql scan. i.e. given the following struct:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>Node</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>ID</span> 			<span class=kt>int</span>
+</span></span><span class=line><span class=cl>	<span class=nx>Name</span> 		<span class=kt>string</span>
+</span></span><span class=line><span class=cl>	<span class=nx>CreatedAt</span> 	<span class=nx>timestamppb</span><span class=p>.</span><span class=nx>Timestamp</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
 </span></span></code></pre></div><p>However in database, I have <code>Name</code> and <code>CreatedAt</code> nullable, and I
 don&rsquo;t really want to create a new struct or new variable using <code>sql.NullString</code>
 just to use in <code>Row.Scan</code>.</p><h3 id=my-solution>My solution
-<a class=heading-link href=#my-solution><i class="fa fa-link" aria-hidden=true></i></a></h3><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>type</span> nullString <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	s *<span>string</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (ts nullString) Scan(value <span style=font-weight:700>interface</span>{}) <span>error</span> {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> value == <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		*ts.s = <span style=font-style:italic>&#34;&#34;</span> <span style=font-style:italic>// nil to empty
-</span></span></span><span style=display:flex><span><span style=font-style:italic></span>		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>switch</span> t := value.(<span style=font-weight:700>type</span>) {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>case</span> <span>string</span>:
-</span></span><span style=display:flex><span>		*ts.s = t
-</span></span><span style=display:flex><span>	<span style=font-weight:700>default</span>:
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> fmt.Errorf(<span style=font-style:italic>&#34;expect string in sql scan, got: %T&#34;</span>, value)
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>func</span> (n *nullString) Value() (driver.Value, <span>error</span>) {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> n.s == <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> <span style=font-style:italic>&#34;&#34;</span>, <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> *n.s, <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>And use it like this:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>var</span> node Node
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>db.QueryRow(<span style=font-style:italic>&#34;select name from node where id=?&#34;</span>, id)
-</span></span><span style=display:flex><span>	.Scan(nullString(&amp;node.Name))
+<a class=heading-link href=#my-solution><i class="fa fa-link" aria-hidden=true title="Link to heading"></i>
+<span class=sr-only>Link to heading</span></a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span> <span class=nx>nullString</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>s</span> <span class=o>*</span><span class=kt>string</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>ts</span> <span class=nx>nullString</span><span class=p>)</span> <span class=nf>Scan</span><span class=p>(</span><span class=nx>value</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>value</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>s</span> <span class=p>=</span> <span class=s>&#34;&#34;</span> <span class=c1>// nil to empty
+</span></span></span><span class=line><span class=cl><span class=c1></span>		<span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>switch</span> <span class=nx>t</span> <span class=o>:=</span> <span class=nx>value</span><span class=p>.(</span><span class=kd>type</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>case</span> <span class=kt>string</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>		<span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>s</span> <span class=p>=</span> <span class=nx>t</span>
+</span></span><span class=line><span class=cl>	<span class=k>default</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;expect string in sql scan, got: %T&#34;</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>func</span> <span class=p>(</span><span class=nx>n</span> <span class=o>*</span><span class=nx>nullString</span><span class=p>)</span> <span class=nf>Value</span><span class=p>()</span> <span class=p>(</span><span class=nx>driver</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>n</span><span class=p>.</span><span class=nx>s</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=s>&#34;&#34;</span><span class=p>,</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=o>*</span><span class=nx>n</span><span class=p>.</span><span class=nx>s</span><span class=p>,</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>And use it like this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>var</span> <span class=nx>node</span> <span class=nx>Node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>db</span><span class=p>.</span><span class=nf>QueryRow</span><span class=p>(</span><span class=s>&#34;select name from node where id=?&#34;</span><span class=p>,</span> <span class=nx>id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=nf>nullString</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>node</span><span class=p>.</span><span class=nx>Name</span><span class=p>))</span>
 </span></span></code></pre></div><p>Note here I don&rsquo;t need the pointer to the nullString, and I&rsquo;m setting the value
 the pointer is pointing to directly. And I didn&rsquo;t need to create a
-<code>sql.NullString</code>.</p><p>And similarly, I can also create a <code>*timestamppb.Timestamp</code> scanner:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>import</span> (
-</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;database/sql/driver&#34;</span>
-</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;time&#34;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=font-style:italic>&#34;google.golang.org/protobuf/types/known/timestamppb&#34;</span>
-</span></span><span style=display:flex><span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-weight:700>type</span> tsScanner <span style=font-weight:700>struct</span> {
-</span></span><span style=display:flex><span>	pt **timestamppb.Timestamp
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-style:italic>// Scan implements sql.Scanner for protobuf Timestamp.
-</span></span></span><span style=display:flex><span><span style=font-style:italic></span><span style=font-weight:700>func</span> (ts tsScanner) Scan(value <span style=font-weight:700>interface</span>{}) <span>error</span> {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> value == <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		*ts.pt = <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>switch</span> t := value.(<span style=font-weight:700>type</span>) {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>case</span> time.Time:
-</span></span><span style=display:flex><span>		tspb := timestamppb.New(t)
-</span></span><span style=display:flex><span>		*ts.pt = tspb
-</span></span><span style=display:flex><span>	<span style=font-weight:700>default</span>:
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> fmt.Errorf(<span style=font-style:italic>&#34;expect time.Time in sql scan got: %T&#34;</span>, value)
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=font-style:italic>// Value implements driver.Valuer for protobuf Timestamp.
-</span></span></span><span style=display:flex><span><span style=font-style:italic></span><span style=font-weight:700>func</span> (ts tsScanner) Value() (driver.Value, <span>error</span>) {
-</span></span><span style=display:flex><span>	<span style=font-weight:700>if</span> ts.pt == <span style=font-weight:700>nil</span> || *ts.pt == <span style=font-weight:700>nil</span> {
-</span></span><span style=display:flex><span>		<span style=font-weight:700>return</span> <span style=font-weight:700>nil</span>, <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=font-weight:700>return</span> (*ts.pt).AsTime(), <span style=font-weight:700>nil</span>
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>And use it:</p><div class=highlight><pre tabindex=0 style=background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=font-weight:700>var</span> node Node
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>db.QueryRow(<span style=font-style:italic>&#34;select created_at from node where id=?&#34;</span>, id)
-</span></span><span style=display:flex><span>	.Scan(tsScanner(&amp;node.CreatedAt))
+<code>sql.NullString</code>.</p><p>And similarly, I can also create a <code>*timestamppb.Timestamp</code> scanner:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>	<span class=s>&#34;database/sql/driver&#34;</span>
+</span></span><span class=line><span class=cl>	<span class=s>&#34;fmt&#34;</span>
+</span></span><span class=line><span class=cl>	<span class=s>&#34;time&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=s>&#34;google.golang.org/protobuf/types/known/timestamppb&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>type</span> <span class=nx>tsScanner</span> <span class=kd>struct</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nx>pt</span> <span class=o>**</span><span class=nx>timestamppb</span><span class=p>.</span><span class=nx>Timestamp</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Scan implements sql.Scanner for protobuf Timestamp.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>ts</span> <span class=nx>tsScanner</span><span class=p>)</span> <span class=nf>Scan</span><span class=p>(</span><span class=nx>value</span> <span class=kd>interface</span><span class=p>{})</span> <span class=kt>error</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>value</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>pt</span> <span class=p>=</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>switch</span> <span class=nx>t</span> <span class=o>:=</span> <span class=nx>value</span><span class=p>.(</span><span class=kd>type</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>case</span> <span class=nx>time</span><span class=p>.</span><span class=nx>Time</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>		<span class=nx>tspb</span> <span class=o>:=</span> <span class=nx>timestamppb</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=nx>t</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>pt</span> <span class=p>=</span> <span class=nx>tspb</span>
+</span></span><span class=line><span class=cl>	<span class=k>default</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=nx>fmt</span><span class=p>.</span><span class=nf>Errorf</span><span class=p>(</span><span class=s>&#34;expect time.Time in sql scan got: %T&#34;</span><span class=p>,</span> <span class=nx>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// Value implements driver.Valuer for protobuf Timestamp.
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>func</span> <span class=p>(</span><span class=nx>ts</span> <span class=nx>tsScanner</span><span class=p>)</span> <span class=nf>Value</span><span class=p>()</span> <span class=p>(</span><span class=nx>driver</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span> <span class=kt>error</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=nx>ts</span><span class=p>.</span><span class=nx>pt</span> <span class=o>==</span> <span class=kc>nil</span> <span class=o>||</span> <span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>pt</span> <span class=o>==</span> <span class=kc>nil</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=kc>nil</span><span class=p>,</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=p>(</span><span class=o>*</span><span class=nx>ts</span><span class=p>.</span><span class=nx>pt</span><span class=p>).</span><span class=nf>AsTime</span><span class=p>(),</span> <span class=kc>nil</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>And use it:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>var</span> <span class=nx>node</span> <span class=nx>Node</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nx>db</span><span class=p>.</span><span class=nf>QueryRow</span><span class=p>(</span><span class=s>&#34;select created_at from node where id=?&#34;</span><span class=p>,</span> <span class=nx>id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=nf>tsScanner</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>node</span><span class=p>.</span><span class=nx>CreatedAt</span><span class=p>))</span>
 </span></span></code></pre></div><p>In the <code>timestamppb.Timestamp</code> example, I&rsquo;m using the pointer of pointer to the
 struct because I need the set the pointer value, not the actual value.</p><p>It can make your head spin the whole pointer to pointer thing. Well, I&rsquo;ll
 admit, it still does to me from time to time. Just need a bit more practice I
-suppose?</p></div><footer><script src=https://utteranc.es/client.js repo=jackielii/jackieli.dev issue-term=pathname label theme=github-light crossorigin=anonymous async></script></footer></article></section></div><footer class=footer><section class=container>©
+suppose?</p></div><footer><div class=comments><script>let getTheme=window.localStorage&&window.localStorage.getItem("colorscheme");getTheme=getTheme??"preferred_color_scheme";let s=document.createElement("script");s.src="https://giscus.app/client.js",s.setAttribute("data-repo","jackielii/jackieli.dev"),s.setAttribute("data-repo-id","MDEwOlJlcG9zaXRvcnkyNzM3MjUxODQ="),s.setAttribute("data-category","General"),s.setAttribute("data-category-id","MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMzMDU5OTk0"),s.setAttribute("data-mapping","pathname"),s.setAttribute("data-term",""),s.setAttribute("data-strict","0"),s.setAttribute("data-reactions-enabled","1"),s.setAttribute("data-emit-metadata","0"),s.setAttribute("data-input-position","bottom"),s.setAttribute("data-theme",getTheme),s.setAttribute("data-lang","en"),s.setAttribute("data-loading",""),s.setAttribute("crossorigin","anonymous"),s.setAttribute("async",""),document.querySelector("div.comments").innerHTML="",document.querySelector("div.comments").appendChild(s)</script></div></footer></article></section></div><footer class=footer><section class=container>©
 2019 -
 2023
 Jackie Li
 ·
-Powered by <a href=https://gohugo.io/>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/>Coder</a>.</section></footer></main><script src=https://jackieli.dev/js/coder.min.9cf2dbf9b6989ef8eae941ffb4231c26d1dc026bca38f1d19fdba50177d8a9ac.js integrity="sha256-nPLb+baYnvjq6UH/tCMcJtHcAmvKOPHRn9ulAXfYqaw="></script>
+Powered by <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> & <a href=https://github.com/luizdepra/hugo-coder/ target=_blank rel=noopener>Coder</a>.</section></footer></main><script src=https://jackieli.dev/js/coder.min.6ae284be93d2d19dad1f02b0039508d9aab3180a12a06dcc71b0b0ef7825a317.js integrity="sha256-auKEvpPS0Z2tHwKwA5UI2aqzGAoSoG3McbCw73gloxc="></script>
 <script type=application/javascript>var doNotTrack=!1;doNotTrack||(function(e,t,n,s,o,i,a){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,i=t.createElement(n),a=t.getElementsByTagName(n)[0],i.async=1,i.src=s,a.parentNode.insertBefore(i,a)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-173573373-1","auto"),ga("send","pageview"))</script></body></html>
