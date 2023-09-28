@@ -101,11 +101,29 @@ googleAnalytics = "UA-173573373-1"
 #     rel = "alternate"
 #     type = "application/rss+xml"
 
-[params.utterances]
-  repo = "jackielii/jackieli.dev" # https://utteranc.es/#heading-repository
-  issueTerm = "pathname" # https://utteranc.es/#heading-mapping
-  label = "" # https://utteranc.es/#heading-issue-label
-  theme = "github-light" # https://utteranc.es/#heading-theme
+# [params.utterances]
+#   repo = "jackielii/jackieli.dev" # https://utteranc.es/#heading-repository
+#   issueTerm = "pathname" # https://utteranc.es/#heading-mapping
+#   label = "" # https://utteranc.es/#heading-issue-label
+#   theme = "github-light" # https://utteranc.es/#heading-theme
+
+[params.giscus] # https://giscus.app
+  repo = "jackielii/jackieli.dev"
+  repoID = "MDEwOlJlcG9zaXRvcnkyNzM3MjUxODQ="
+  category = "General"
+  categoryID = "MDE4OkRpc2N1c3Npb25DYXRlZ29yeTMzMDU5OTk0"
+  mapping = "pathname"
+  term = ""
+  strict = "0"
+  reactionsEnabled = "1"
+  emitMetadata = ""
+  inputPosition = ""
+  theme = "preferred_color_scheme"
+  lang = "en"
+  loading = ""
+
+[markup.highlight]
+noClasses = false
 
 [languages]
     [languages.en]
