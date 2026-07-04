@@ -70,7 +70,7 @@ googleAnalytics = "UA-173573373-1"
 
 [[params.social]]
     name = "Github"
-    icon = "fa fa-2x fa-github"
+    icon = "fa-brands fa-github fa-2x"
     weight = 1
     url = "https://github.com/jackielii/"
 # [[params.social]]
@@ -80,12 +80,12 @@ googleAnalytics = "UA-173573373-1"
 #     url = "https://gitlab.com/jackie.li/"
 [[params.social]]
     name = "Twitter"
-    icon = "fa fa-2x fa-twitter"
+    icon = "fa-brands fa-x-twitter fa-2x"
     weight = 3
     url = "https://twitter.com/jackielii/"
 [[params.social]]
     name = "LinkedIn"
-    icon = "fa fa-2x fa-linkedin"
+    icon = "fa-brands fa-linkedin fa-2x"
     weight = 4
     url = "https://www.linkedin.com/in/jackie-li-82b10665/"
 # [[params.social]]
