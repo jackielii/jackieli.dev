@@ -56,11 +56,10 @@ issues and proposals in exactly these areas.
 
 - There are proposals for HTML-style component authoring by me: [#663](https://github.com/a-h/templ/issues/663), [#1181](https://github.com/a-h/templ/issues/1181).
 - There is a proposal for anonymous/inline templ functions by others: [#1150](https://github.com/a-h/templ/issues/1150).
-- There are discussions around passing Go data into JavaScript: [#944](https://github.com/a-h/templ/issues/944),
-[#838](https://github.com/a-h/templ/issues/838).
+- There are discussions around passing Go data into JavaScript: [#944](https://github.com/a-h/templ/issues/944), [#838](https://github.com/a-h/templ/issues/838).
 - There was a proposal for JSON helpers: [#739](https://github.com/a-h/templ/issues/739).
 - There is even a newer discussion about whether interpolating Go data inside <script> tags is worth the parser complexity: [#1408](https://github.com/a-h/templ/issues/1408).
-- Class and attribute ergonomics show up too: [#61] (https://github.com/a-h/templ/issues/61), [#902](https://github.com/a-h/templ/issues/902), [#933](https://github.com/a-h/templ/issues/933).
+- Class and attribute ergonomics show up too: [#61](https://github.com/a-h/templ/issues/61), [#902](https://github.com/a-h/templ/issues/902), [#933](https://github.com/a-h/templ/issues/933).
 - And dev-loop/tooling pressure is also there: [#318](https://github.com/a-h/templ/issues/318).
 
 So I think the demand is real. People like Go-checked templates, but they also
@@ -72,7 +71,7 @@ The hard part is that these features are not isolated.
 
 HTML-style component calls are not just syntax. Once you have:
 
-```jsx
+```gsx
 <Card title="Hello" class="featured" />
 ```
 
@@ -103,25 +102,27 @@ not free. It is more machinery than a simpler parser/code generator.
 
 But it buys useful things.
 
-A component can look like this:
+A component call can look like this:
 
-```jsx
-component Card(title string, featured bool) {
-  <section class={ "card", "card-featured": featured }>
-    <h2>{ title }</h2>
-    { if featured { <span class="badge">Featured</span> } }
-    <div>{ children }</div>
-  </section>
+```gsx
+component Greeting(name string) { <p {attrs...}>Hi { name }</p> }
+component Card(title string, n int) { <div>{ title }: { n }</div> }
+component Panel(title string) { <section>{ title }</section> }
+
+component Page() {
+  <>
+    <Greeting name="Ann" class="friendly"/>
+    <Card title="T" n={2}/>
+    <Panel title="P"/>
+  </>
 }
 ```
 
-The markup reads like markup.
+The call site reads like markup.
 
 The data is still Go.
 
 The generated output is still plain Go.
-
-Props are named Go fields, checked by go build.
 
 ## Class ergonomics
 
@@ -130,7 +131,7 @@ code.
 
 In gsx:
 
-```jsx
+```gsx
 <span class={ "tag", "tag--active": active }>
   { label }
 </span>
@@ -144,7 +145,7 @@ This renders as:
 
 There is also explicit attribute forwarding:
 
-```jsx
+```gsx
 component Button(variant string) {
   <button class="btn" data-variant={variant} { attrs... }>
     { children }
@@ -152,7 +153,7 @@ component Button(variant string) {
 }
 ```
 
-```jsx
+```gsx
 component Page() {
   <Button variant="primary" class="w-full" data-test="x" hx-post="/go">
     Save
@@ -162,7 +163,7 @@ component Page() {
 
 The rendered class is merged:
 
-```jsx
+```html
 <button class="btn w-full" data-variant="primary" data-test="x" hx-post="/go">
   Save
 </button>
@@ -190,16 +191,19 @@ In gsx, JavaScript-valued attributes are explicit:
 
 For Alpine-style attributes:
 
+```gsx
 <div x-data=js`{ open: false }`>
   <button @click=js`open = !open`>Toggle</button>
-  <div x-show=js`open` @click.outside=js`open = false`}>
+  <div x-show=js`open` @click.outside=js`open = false`>
     Contents...
   </div>
 </div>
+```
 
 For JSON-ish attributes like hx-vals, Go values in @{ ... } holes are
 serialized as JSON automatically:
 
+```gsx
 component EntityFilter(entityType string, opts map[string]string) {
   <input
     type="checkbox"
@@ -207,15 +211,18 @@ component EntityFilter(entityType string, opts map[string]string) {
     hx-vals=js`{"entity_type": @{entityType}, "opts": @{opts}}`
   />
 }
+```
 
 And for data islands:
 
+```gsx
 component Widget(cfg Config) {
   <div>
     <button @click=js`toggle()`>Toggle</button>
     <script type="application/json" id="cfg">@{ cfg }</script>
   </div>
 }
+```
 
 This is the kind of thing I wanted: Go values, HTML-shaped templates, explicit
 JavaScript contexts, and generated output I can inspect.
@@ -231,17 +238,23 @@ gsx treats the position as part of the meaning.
 
 For example:
 
+```gsx
 component Link(u string) {
   <a href={ u |> trim }>x</a>
 }
+```
 
 If u is:
 
+```go
 "  javascript:alert(1)  "
+```
 
 the rendered output is:
 
+```html
 <a href="about:invalid#gsx">x</a>
+```
 
 That is the sort of thing I want the compiler to own. Not every call site. Not a
 helper remembered by convention. The template compiler can see the context, so
@@ -317,7 +330,14 @@ It is alpha software, and the language will probably still change.
 But the direction is clear: HTML as a first-class Go value, with enough tooling
 behind it to make the authoring experience feel good.
 
+## Try it
 
-I did not write it into `/Users/jackieli/personal/jackieli.dev/content/posts` because that repo is outside the current writable sandbox. The path I found
-is `/Users/jackieli/personal/jackieli.dev/content/posts`; your original `../../jackieli.dev/content/posts/` did not resolve from `/Users/jackieli/
-personal/gsxhq`.
+If any of this sounds useful, the docs live at
+[gsxhq.github.io](https://gsxhq.github.io/).
+
+There is a get-started guide, a reference for the syntax, and a browser
+playground if you just want to poke at it without installing anything.
+
+It is still alpha. But it is real, and it works.
+
+I would like to hear what you think.
