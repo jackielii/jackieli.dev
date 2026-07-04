@@ -52,7 +52,7 @@ googleAnalytics = "UA-173573373-1"
     enableTwemoji = true
 
     # Custom CSS
-    custom_css = []
+    customCSS = ["css/gsx-highlight.css"]
 
     # Custom JS
     custom_js = []
