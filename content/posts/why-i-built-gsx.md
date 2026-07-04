@@ -332,12 +332,8 @@ behind it to make the authoring experience feel good.
 
 ## Try it
 
-If any of this sounds useful, the docs live at
-[gsxhq.github.io](https://gsxhq.github.io/).
+The fastest way to get a feel is **[browser playground](https://gsxhq.github.io/playground)** —  no install required.
 
-There is a get-started guide, a reference for the syntax, and a browser
-playground if you just want to poke at it without installing anything.
-
-It is still alpha. But it is real, and it works.
+The docs live at [gsxhq.github.io](https://gsxhq.github.io/): a get-started guide and a syntax reference.
 
 I would like to hear what you think.
