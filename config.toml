@@ -63,6 +63,9 @@ googleAnalytics = "UA-173573373-1"
     # Default value is cdn.usefathom.com, overwrite this if you are self-hosting
     # serverURL = "analytics.example.com"
 
+[params.goatCounter]
+    code = "gsxhq"
+
 [taxonomies]
   category = "categories"
   series = "series"
