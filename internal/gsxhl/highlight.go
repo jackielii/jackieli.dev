@@ -13,7 +13,7 @@ import (
 	tree_sitter_css "github.com/tree-sitter/tree-sitter-css/bindings/go"
 	tree_sitter_go "github.com/tree-sitter/tree-sitter-go/bindings/go"
 	tree_sitter_javascript "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
-	highlight "go.gopad.dev/go-tree-sitter-highlight"
+	highlight "github.com/jackielii/go-tree-sitter-highlight"
 
 	"github.com/jackielii/jackieli.dev/internal/gsxgrammar"
 )
