@@ -1,5 +1,5 @@
 +++
-date = 2026-07-04T09:26:00Z
+date = 2026-07-04T08:26:00Z
 title = "Why I built gsx"
 description = "Why gsx exists, and why I didn't just use templ"
 slug = "why-i-built-gsx"
