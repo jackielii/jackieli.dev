@@ -6,8 +6,12 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unsafe"
 
 	tree_sitter "github.com/tree-sitter/go-tree-sitter"
+	tree_sitter_css "github.com/tree-sitter/tree-sitter-css/bindings/go"
+	tree_sitter_go "github.com/tree-sitter/tree-sitter-go/bindings/go"
+	tree_sitter_javascript "github.com/tree-sitter/tree-sitter-javascript/bindings/go"
 	highlight "go.gopad.dev/go-tree-sitter-highlight"
 
 	"github.com/jackielii/jackieli.dev/internal/gsxgrammar"
@@ -36,22 +40,56 @@ type Highlighter struct {
 	inject func(languageName string) *highlight.Configuration
 }
 
-// New builds a Highlighter for gsx.
+// newConfig builds a highlight.Configuration for a language identified by its
+// tree-sitter Language() pointer, name, and highlights query.
+func newConfig(langPtr unsafe.Pointer, name string, highlights []byte) (*highlight.Configuration, error) {
+	lang := tree_sitter.NewLanguage(langPtr)
+	cfg, err := highlight.NewConfiguration(lang, name, highlights, nil, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s configuration: %w", name, err)
+	}
+	cfg.Configure(recognizedNames)
+	return cfg, nil
+}
+
+// New builds a Highlighter for gsx, wired to inject go/javascript/css
+// highlighting into the embedded regions gsx's injections.scm identifies.
 func New() (*Highlighter, error) {
-	gsxLang := tree_sitter.NewLanguage(gsxgrammar.Language())
-	cfg, err := highlight.NewConfiguration(
-		gsxLang, "gsx",
+	gsxCfg, err := highlight.NewConfiguration(
+		tree_sitter.NewLanguage(gsxgrammar.Language()), "gsx",
 		gsxgrammar.GSXHighlights, gsxgrammar.GSXInjections, nil,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("gsx configuration: %w", err)
 	}
-	cfg.Configure(recognizedNames)
-	return &Highlighter{
-		inner:  highlight.New(),
-		gsx:    cfg,
-		inject: func(string) *highlight.Configuration { return nil },
-	}, nil
+	gsxCfg.Configure(recognizedNames)
+
+	goCfg, err := newConfig(tree_sitter_go.Language(), "go", gsxgrammar.GoHighlights)
+	if err != nil {
+		return nil, err
+	}
+	jsCfg, err := newConfig(tree_sitter_javascript.Language(), "javascript", gsxgrammar.JSHighlights)
+	if err != nil {
+		return nil, err
+	}
+	cssCfg, err := newConfig(tree_sitter_css.Language(), "css", gsxgrammar.CSSHighlights)
+	if err != nil {
+		return nil, err
+	}
+
+	inject := func(name string) *highlight.Configuration {
+		switch name {
+		case "go":
+			return goCfg
+		case "javascript":
+			return jsCfg
+		case "css":
+			return cssCfg
+		default:
+			return nil
+		}
+	}
+	return &Highlighter{inner: highlight.New(), gsx: gsxCfg, inject: inject}, nil
 }
 
 // HighlightHTML returns the highlighted inner HTML for source (spans only, no

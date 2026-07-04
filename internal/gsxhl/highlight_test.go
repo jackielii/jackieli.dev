@@ -26,3 +26,19 @@ func TestHighlightHTML_gsxStructure(t *testing.T) {
 		}
 	}
 }
+
+func TestHighlightHTML_injectsGo(t *testing.T) {
+	h, err := gsxhl.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// `featured` is Go inside a value-form condition; with injections on it
+	// should be wrapped in some ts- span rather than left as bare text.
+	out, err := h.HighlightHTML([]byte("component C(featured bool) { { if featured { <b>x</b> } } }"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, `>featured</span>`) && !strings.Contains(out, `class="ts-`+`variable">featured`) {
+		t.Errorf("embedded Go identifier `featured` not highlighted (injection not active)\n---\n%s", out)
+	}
+}
