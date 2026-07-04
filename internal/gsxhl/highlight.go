@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 	"unsafe"
 
 	tree_sitter "github.com/tree-sitter/go-tree-sitter"
@@ -94,24 +95,68 @@ func New() (*Highlighter, error) {
 
 // HighlightHTML returns the highlighted inner HTML for source (spans only, no
 // wrapping <pre>/<code>).
+//
+// It renders the highlight event stream directly rather than using the
+// library's HTMLRender. That renderer closes and reopens every open span at
+// each newline (a feature for line-numbered / per-line-wrapped output), which
+// emits an empty `<span class="…"></span>` whenever a capture's text *starts*
+// with a newline — and gsx's `punctuation.bracket` captures routinely do
+// (e.g. the `\n\t<` before an element's opening `<`). gsx highlighting is
+// inline and never wraps individual lines, so we deliberately do not split
+// spans at newlines: a highlighted span may span a line break, producing
+// clean output with no empty-span artifacts.
 func (h *Highlighter) HighlightHTML(source []byte) (string, error) {
 	events := h.inner.Highlight(context.Background(), *h.gsx, source, h.inject)
 
-	render := highlight.NewHTMLRender()
-
 	var buf bytes.Buffer
-	attr := func(hl highlight.Highlight, _ string) []byte {
-		if hl == highlight.DefaultHighlight {
-			return nil
+	for event, err := range events {
+		if err != nil {
+			return "", fmt.Errorf("highlight: %w", err)
 		}
-		i := int(hl)
-		if i < 0 || i >= len(recognizedNames) {
-			return nil
+		switch e := event.(type) {
+		case highlight.EventCaptureStart:
+			buf.WriteString("<span")
+			if i := int(e.Highlight); e.Highlight != highlight.DefaultHighlight && i >= 0 && i < len(recognizedNames) {
+				buf.WriteString(` class="`)
+				buf.WriteString(className(recognizedNames[i]))
+				buf.WriteByte('"')
+			}
+			buf.WriteByte('>')
+		case highlight.EventCaptureEnd:
+			buf.WriteString("</span>")
+		case highlight.EventSource:
+			writeEscapedHTML(&buf, source[e.StartByte:e.EndByte])
 		}
-		return []byte(fmt.Sprintf(`class=%q`, className(recognizedNames[i])))
-	}
-	if err := render.Render(&buf, events, source, attr); err != nil {
-		return "", fmt.Errorf("render: %w", err)
+		// EventLayerStart / EventLayerEnd carry no rendered output here; the
+		// attribute we emit does not depend on the injected language name.
 	}
 	return buf.String(), nil
+}
+
+// writeEscapedHTML writes src to buf, HTML-escaping the characters that matter
+// inside element content, dropping carriage returns and invalid UTF-8. It uses
+// the same entity set and skip rules as the upstream HTMLRender, minus that
+// renderer's newline span-splitting. Newlines are written through verbatim.
+func writeEscapedHTML(buf *bytes.Buffer, src []byte) {
+	for len(src) > 0 {
+		c, size := utf8.DecodeRune(src)
+		src = src[size:]
+		if c == utf8.RuneError || c == '\r' {
+			continue
+		}
+		switch c {
+		case '&':
+			buf.WriteString("&amp;")
+		case '\'':
+			buf.WriteString("&#39;")
+		case '<':
+			buf.WriteString("&lt;")
+		case '>':
+			buf.WriteString("&gt;")
+		case '"':
+			buf.WriteString("&#34;")
+		default:
+			buf.WriteRune(c)
+		}
+	}
 }

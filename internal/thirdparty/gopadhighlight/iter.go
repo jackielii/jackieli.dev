@@ -3,6 +3,7 @@ package highlight
 import (
 	"context"
 	"slices"
+	"sort"
 
 	"github.com/tree-sitter/go-tree-sitter"
 )
@@ -304,63 +305,52 @@ main:
 	}
 }
 
-// PATCHED (jackieli.dev fork): both comparisons below were inverted relative
-// to the upstream tree-sitter-highlight (Rust) reference this file ports —
-// sortLayers used GreaterThan where the reference uses `<` (LessThan), and
-// insertLayer used LessThan where the reference uses `>` (GreaterThan). With
-// the inverted operators, sortLayers never actually reorders h.Layers (a
-// newly-inserted injected layer with an earlier byte offset than the current
-// layer never gets promoted to the front), so an injected language's
-// highlights only ever surface after its parent layer is fully exhausted —
-// landing at the wrong byte position (rendered as zero-width spans at the
-// end of the document instead of over the embedded source). Fixing the
-// operators restores correct ascending-by-position layer ordering.
+// PATCHED (jackieli.dev fork): rewritten from upstream's fragile in-place
+// partial-rotate into a robust full stable sort.
+//
+// Upstream maintained h.Layers as "sorted except possibly Layers[0]" and, when
+// Layers[0]'s key grew past its neighbours, spliced it into place with
+//
+//	h.Layers = append(rotateLeft(h.Layers[:i+1], 1), h.Layers[i+1:]...)
+//
+// where rotateLeft(s, 1) == append(s[1:], s[0]). That append writes into the
+// SHARED backing array: `s[1:]` (a subslice of h.Layers with spare capacity)
+// gets an element appended at index i+1 — overwriting h.Layers[i+1] — BEFORE
+// the outer append reads `h.Layers[i+1:]`. So rotating Layers[0] past exactly
+// one neighbour silently clobbers the layer at index 2 with a duplicate of the
+// rotated element. With a single injection there are only two layers (no index
+// 2 to corrupt) so it happened to work; with two combined injections
+// (<script> JS + <style> CSS -> layers [gsx, js, css]) promoting gsx past js
+// turned [gsx, js, css] into [js, gsx, gsx], destroying the css layer. The css
+// tokens were then never emitted at their real position and instead dumped as
+// zero-width spans once every surviving layer was exhausted.
+//
+// Two earlier inverted-comparison bugs (sortLayers using GreaterThan where the
+// Rust reference uses `<`, insertLayer using LessThan where it uses `>`) lived
+// in this same code and are subsumed by the rewrite below, which sorts
+// ascending by sortKey directly. Exhausted layers (nil sortKey) are dropped and
+// their cursors recycled, matching upstream's front-removal semantics but for
+// any position, which a full sort requires.
 func (h *iterator) sortLayers() {
-	for len(h.Layers) > 0 {
-		key := h.Layers[0].sortKey()
-		if key != nil {
-			var i int
-			for i+1 < len(h.Layers) {
-				nextOffsetKey := h.Layers[i+1].sortKey()
-				if nextOffsetKey != nil {
-					if nextOffsetKey.LessThan(*key) {
-						i += 1
-						continue
-					}
-				}
-				break
-			}
-			if i > 0 {
-				h.Layers = append(rotateLeft(h.Layers[:i+1], 1), h.Layers[i+1:]...)
-			}
-			break
+	live := h.Layers[:0]
+	for _, layer := range h.Layers {
+		if layer.sortKey() == nil {
+			h.Highlighter.pushCursor(layer.Cursor)
+			continue
 		}
-		layer := h.Layers[0]
-		h.Layers = h.Layers[1:]
-		h.Highlighter.pushCursor(layer.Cursor)
+		live = append(live, layer)
 	}
+	h.Layers = live
+	sort.SliceStable(h.Layers, func(a, b int) bool {
+		return h.Layers[a].sortKey().LessThan(*h.Layers[b].sortKey())
+	})
 }
 
+// insertLayer adds a newly-created injected layer. Ordering is left to
+// sortLayers (always called right after in the injection path), so a plain
+// append is sufficient and avoids duplicating the sort logic.
 func (h *iterator) insertLayer(layer *iterLayer) {
-	key := layer.sortKey()
-	if key != nil {
-		i := 1
-		for i < len(h.Layers) {
-			keyI := h.Layers[i].sortKey()
-			if keyI != nil {
-				if keyI.GreaterThan(*key) {
-					h.Layers = slices.Insert(h.Layers, i, layer)
-					return
-				}
-				i += 1
-			} else {
-				h.Layers = slices.Delete(h.Layers, i, i+1)
-			}
-		}
+	if layer.sortKey() != nil {
 		h.Layers = append(h.Layers, layer)
 	}
-}
-
-func rotateLeft[T any](s []T, i int) []T {
-	return append(s[i:], s[:i]...)
 }
