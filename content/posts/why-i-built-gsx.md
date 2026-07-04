@@ -54,31 +54,14 @@ Things like:
 What convinced me this was not just my personal taste is that templ has had many
 issues and proposals in exactly these areas.
 
-There are proposals for HTML-style component authoring:
-#663 (https://github.com/a-h/templ/issues/663),
-#1181 (https://github.com/a-h/templ/issues/1181).
-
-There is a proposal for anonymous/inline templ functions:
-#1150 (https://github.com/a-h/templ/issues/1150).
-
-There are discussions around passing Go data into JavaScript:
-#944 (https://github.com/a-h/templ/issues/944),
-#838 (https://github.com/a-h/templ/issues/838).
-
-There was a proposal for JSON helpers:
-#739 (https://github.com/a-h/templ/issues/739).
-
-There is even a newer discussion about whether interpolating Go data inside
-<script> tags is worth the parser complexity:
-#1408 (https://github.com/a-h/templ/issues/1408).
-
-Class and attribute ergonomics show up too:
-#61 (https://github.com/a-h/templ/issues/61),
-#902 (https://github.com/a-h/templ/issues/902),
-#933 (https://github.com/a-h/templ/issues/933).
-
-And dev-loop/tooling pressure is also there:
-#318 (https://github.com/a-h/templ/issues/318).
+- There are proposals for HTML-style component authoring by me: [#663](https://github.com/a-h/templ/issues/663), [#1181](https://github.com/a-h/templ/issues/1181).
+- There is a proposal for anonymous/inline templ functions by others: [#1150](https://github.com/a-h/templ/issues/1150).
+- There are discussions around passing Go data into JavaScript: [#944](https://github.com/a-h/templ/issues/944),
+[#838](https://github.com/a-h/templ/issues/838).
+- There was a proposal for JSON helpers: [#739](https://github.com/a-h/templ/issues/739).
+- There is even a newer discussion about whether interpolating Go data inside <script> tags is worth the parser complexity: [#1408](https://github.com/a-h/templ/issues/1408).
+- Class and attribute ergonomics show up too: [#61] (https://github.com/a-h/templ/issues/61), [#902](https://github.com/a-h/templ/issues/902), [#933](https://github.com/a-h/templ/issues/933).
+- And dev-loop/tooling pressure is also there: [#318](https://github.com/a-h/templ/issues/318).
 
 So I think the demand is real. People like Go-checked templates, but they also
 want the authoring experience to feel more like writing HTML.
@@ -89,7 +72,9 @@ The hard part is that these features are not isolated.
 
 HTML-style component calls are not just syntax. Once you have:
 
+```jsx
 <Card title="Hello" class="featured" />
+```
 
 the compiler needs to know whether Card is a component, what props it accepts,
 how attributes map to fields, what type each expression has, and what context
@@ -120,6 +105,7 @@ But it buys useful things.
 
 A component can look like this:
 
+```jsx
 component Card(title string, featured bool) {
   <section class={ "card", "card-featured": featured }>
     <h2>{ title }</h2>
@@ -127,6 +113,7 @@ component Card(title string, featured bool) {
     <div>{ children }</div>
   </section>
 }
+```
 
 The markup reads like markup.
 
@@ -143,33 +130,43 @@ code.
 
 In gsx:
 
+```jsx
 <span class={ "tag", "tag--active": active }>
   { label }
 </span>
+```
 
 This renders as:
 
+```html
 <span class="tag tag--active">stable</span>
+```
 
 There is also explicit attribute forwarding:
 
+```jsx
 component Button(variant string) {
   <button class="btn" data-variant={variant} { attrs... }>
     { children }
   </button>
 }
+```
 
+```jsx
 component Page() {
   <Button variant="primary" class="w-full" data-test="x" hx-post="/go">
     Save
   </Button>
 }
+```
 
 The rendered class is merged:
 
+```jsx
 <button class="btn w-full" data-variant="primary" data-test="x" hx-post="/go">
   Save
 </button>
+```
 
 This is a very boring feature, but boring features are where UI ergonomics live.
 
@@ -187,7 +184,9 @@ I just do not want the whole circus.
 
 In gsx, JavaScript-valued attributes are explicit:
 
+```gsx
 <button @click=js`openMenu()`>Open</button>
+```
 
 For Alpine-style attributes:
 
