@@ -1,0 +1,47 @@
+/* gsx token colours. Block chrome (padding/radius/bg/overflow) is inherited
+   from the theme's .highlight/.chroma rules, matching other code blocks. */
+.chroma code.language-gsx { color: #212121; }
+.chroma code.language-gsx .ts-keyword            { color: #7c3aed; }
+.chroma code.language-gsx .ts-function            { color: #2563eb; }
+.chroma code.language-gsx .ts-type,
+.chroma code.language-gsx .ts-type-builtin       { color: #0e7490; }
+.chroma code.language-gsx .ts-constructor        { color: #b45309; }
+.chroma code.language-gsx .ts-tag                { color: #1e3a8a; }
+.chroma code.language-gsx .ts-attribute,
+.chroma code.language-gsx .ts-property           { color: #b91c1c; font-style: italic; }
+.chroma code.language-gsx .ts-string,
+.chroma code.language-gsx .ts-string-special     { color: #15803d; }
+.chroma code.language-gsx .ts-escape             { color: #0f766e; }
+.chroma code.language-gsx .ts-number,
+.chroma code.language-gsx .ts-constant,
+.chroma code.language-gsx .ts-constant-builtin   { color: #b45309; }
+.chroma code.language-gsx .ts-comment            { color: #8a8a8a; font-style: italic; }
+.chroma code.language-gsx .ts-operator,
+.chroma code.language-gsx .ts-punctuation-bracket,
+.chroma code.language-gsx .ts-punctuation-special,
+.chroma code.language-gsx .ts-punctuation-delimiter { color: #4e4e4e; }
+.chroma code.language-gsx .ts-variable,
+.chroma code.language-gsx .ts-variable-builtin   { color: #212121; }
+
+body.colorscheme-dark .chroma code.language-gsx            { color: #dadada; }
+body.colorscheme-dark .chroma code.language-gsx .ts-keyword            { color: #c792ea; }
+body.colorscheme-dark .chroma code.language-gsx .ts-function           { color: #82aaff; }
+body.colorscheme-dark .chroma code.language-gsx .ts-type,
+body.colorscheme-dark .chroma code.language-gsx .ts-type-builtin       { color: #4ec9b0; }
+body.colorscheme-dark .chroma code.language-gsx .ts-constructor        { color: #d2a86a; }
+body.colorscheme-dark .chroma code.language-gsx .ts-tag                { color: #7aa2f7; }
+body.colorscheme-dark .chroma code.language-gsx .ts-attribute,
+body.colorscheme-dark .chroma code.language-gsx .ts-property           { color: #f7768e; font-style: italic; }
+body.colorscheme-dark .chroma code.language-gsx .ts-string,
+body.colorscheme-dark .chroma code.language-gsx .ts-string-special     { color: #9ece6a; }
+body.colorscheme-dark .chroma code.language-gsx .ts-escape             { color: #2ec4b6; }
+body.colorscheme-dark .chroma code.language-gsx .ts-number,
+body.colorscheme-dark .chroma code.language-gsx .ts-constant,
+body.colorscheme-dark .chroma code.language-gsx .ts-constant-builtin   { color: #ff9e64; }
+body.colorscheme-dark .chroma code.language-gsx .ts-comment            { color: #7f848e; font-style: italic; }
+body.colorscheme-dark .chroma code.language-gsx .ts-operator,
+body.colorscheme-dark .chroma code.language-gsx .ts-punctuation-bracket,
+body.colorscheme-dark .chroma code.language-gsx .ts-punctuation-special,
+body.colorscheme-dark .chroma code.language-gsx .ts-punctuation-delimiter { color: #89ddff; }
+body.colorscheme-dark .chroma code.language-gsx .ts-variable,
+body.colorscheme-dark .chroma code.language-gsx .ts-variable-builtin   { color: #dadada; }
