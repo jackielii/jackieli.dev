@@ -23,7 +23,7 @@ import (
 // Covers gsx captures plus captures produced by injected go/js/css queries.
 var recognizedNames = []string{
 	"attribute", "comment", "constant", "constant.builtin", "constructor",
-	"embedded", "function", "function.builtin", "keyword", "module", "number",
+	"embedded", "escape", "function", "function.builtin", "keyword", "module", "number",
 	"operator", "property", "punctuation.bracket", "punctuation.delimiter",
 	"punctuation.special", "string", "string.special", "tag", "type",
 	"type.builtin", "variable", "variable.builtin",
@@ -141,7 +141,7 @@ func writeEscapedHTML(buf *bytes.Buffer, src []byte) {
 	for len(src) > 0 {
 		c, size := utf8.DecodeRune(src)
 		src = src[size:]
-		if c == utf8.RuneError || c == '\r' {
+		if (c == utf8.RuneError && size == 1) || c == '\r' {
 			continue
 		}
 		switch c {
