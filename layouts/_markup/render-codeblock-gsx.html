@@ -1,0 +1,4 @@
+{{- /* Marks gsx fences for the gsxhl post-processor. Chroma is bypassed for
+       gsx (no lexer exists); highlighting happens after `hugo` via cmd/gsxhl.
+       .Inner is auto HTML-escaped in this context. */ -}}
+<pre class="gsx-hl"><code>{{ .Inner }}</code></pre>
