@@ -21,8 +21,16 @@ jobs:
           hugo-version: 'latest'
           extended: true
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
       - name: Build
         run: hugo --minify
+
+      - name: Highlight gsx
+        run: go run ./cmd/gsxhl ./public
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
