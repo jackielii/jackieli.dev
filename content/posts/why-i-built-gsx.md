@@ -124,6 +124,44 @@ The data is still Go.
 
 The generated output is still plain Go.
 
+## Markup is a value
+
+One of the frictions I listed earlier was that passing rich inline markup often
+means hoisting yet another named component. In gsx, a `<tag>...</tag>` (or a
+`<Component/>`) is a first-class Go expression of type `gsx.Node`. You can bind
+it to a variable:
+
+```gsx
+var help = <a href="/help" class="text-blue-600">?</a>
+
+component Page() {
+  <div>Need help? { help }</div>
+}
+```
+
+Return it from an ordinary function:
+
+```gsx
+func Greeting(name string) gsx.Node {
+  greeting := "Hi, " + name
+  return <div>{ greeting } ({ name })</div>
+}
+```
+
+Pass it as an argument, or drop it straight into a struct field:
+
+```gsx
+var item = NavItem{
+  Label: "Home",
+  Icon:  <svg class="w-5 h-5"><path d="M0 0"/></svg>,
+}
+```
+
+Because it is just a Go value, it composes with everything Go already has —
+variables, functions, methods, slices, structs — without inventing a template
+sub-language for "a bit of markup I want to pass around." No wrapper component
+required.
+
 ## Class ergonomics
 
 Class composition is one of those small things that matters a lot in real UI
@@ -317,6 +355,7 @@ can be more ergonomic.
 That means:
 
 - HTML-shaped component calls
+- markup as a first-class Go value
 - named props checked by Go
 - contextual escaping
 - class and attribute composition
