@@ -53,16 +53,16 @@ syntax = "proto3"; package main; option go_package = ".;main"; message Foo { str
 expressions. The extensive proto support just makes it better.</p><p>Let&rsquo;s explore an interesting problem: if we were to build a evaluation service
 without embedding the actual proto, i.e. without bundling the generated code
 that defines the struct, fields etc, how can we still evaluate the expressions
-that requests the contents of the proto messages?</p><p>Let&rsquo;s start with this proto:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=n>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=err>
-</span></span></span><span class=line><span class=cl><span class=kn>package</span> <span class=nn>main</span><span class=p>;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=err>
-</span></span></span><span class=line><span class=cl><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;.;main&#34;</span><span class=p>;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=err>
-</span></span></span><span class=line><span class=cl><span class=kd>message</span> <span class=nc>Foo</span> <span class=p>{</span><span class=err>
-</span></span></span><span class=line><span class=cl>  <span class=kt>string</span> <span class=n>foo</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=err>
-</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>messageBytes</span><span class=p>()</span><span class=w> </span><span class=p>[]</span><span class=kt>byte</span><span class=w> </span><span class=p>{</span><span class=w>
+that requests the contents of the proto messages?</p><p>Let&rsquo;s start with this proto:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-proto data-lang=proto><span class=line><span class=cl><span class=k>syntax</span> <span class=o>=</span> <span class=s>&#34;proto3&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>package</span> <span class=nn>main</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>option</span> <span class=n>go_package</span> <span class=o>=</span> <span class=s>&#34;.;main&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>message</span> <span class=nc>Foo</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>string</span> <span class=n>foo</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>messageBytes</span><span class=p>()</span><span class=w> </span><span class=p>[]</span><span class=kt>byte</span><span class=w> </span><span class=p>{</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>foo</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=o>&amp;</span><span class=nx>Foo</span><span class=p>{</span><span class=nx>Foo</span><span class=p>:</span><span class=w> </span><span class=s>&#34;foo message&#34;</span><span class=p>}</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>b</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>proto</span><span class=p>.</span><span class=nf>Marshal</span><span class=p>(</span><span class=nx>foo</span><span class=p>)</span><span class=w>
 </span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
