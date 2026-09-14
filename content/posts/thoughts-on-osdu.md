@@ -1,5 +1,5 @@
 +++
-draft = true
+draft = false
 date = 2022-03-17T12:57:13Z
 title = "My thoughts on OSDU"
 slug = "thoughts-on-osdu"
